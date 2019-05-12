@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/menuGridMain"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ru.startandroid.c9_simpledisorder.MenuActivity">
+
+    <ImageButton
+        android:id="@+id/menuButtonHardmode"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:adjustViewBounds="false"
+        android:background="@android:color/transparent"
+        android:cropToPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/menu_hardmode" />
+
+    <GridLayout
+        android:id="@+id/menuLayoutLevelInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:columnCount="2"
+        android:rowCount="3"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/menuTextViewDiff"
+            android:layout_width="96dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:text="Difficulty"
+            android:textSize="10sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/menuTextViewProgress"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="Progress:"
+                android:textAlignment="gravity"
+                android:textSize="10sp" />
+
+            <ImageView
+                android:id="@+id/menuImageViewStar1"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/menu_star_empty" />
+
+            <ImageView
+                android:id="@+id/menuImageViewStar2"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/menu_star_empty" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/menuTextViewCurrent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:text="Start: "
+            android:textSize="10sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/menuTextViewSigns"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Operations:"
+                android:textSize="10sp" />
+
+            <ImageView
+                android:id="@+id/menuImageViewSign1"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+				android:antialias="true"
+                app:srcCompat="@drawable/sa_plus" />
+
+            <ImageView
+                android:id="@+id/menuImageViewSign2"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+				android:antialias="true"
+                app:srcCompat="@drawable/sa_plus" />
+
+            <ImageView
+                android:id="@+id/menuImageViewSign3"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+				android:antialias="true"
+                app:srcCompat="@drawable/sa_plus" />
+
+            <ImageView
+                android:id="@+id/menuImageViewSign4"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+				android:antialias="true"
+                app:srcCompat="@drawable/sa_plus" />
+
+            <ImageView
+                android:id="@+id/menuImageViewSign5"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+				android:antialias="true"
+                app:srcCompat="@drawable/sa_plus" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/menuTextViewResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:layout_margin="3dp"
+            android:text="Result:"
+            android:textSize="10sp" />
+
+    </GridLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="120dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/menuButtonPageLeft"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:text="&lt;"
+            android:textSize="28sp" />
+
+        <Button
+            android:id="@+id/menuButtonStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="Play!" />
+
+        <Button
+            android:id="@+id/menuButtonPageRight"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:text="&gt;"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/menuTextViewError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:textColor="@android:color/holo_red_light"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/menuTextViewTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="15dp"
+            android:text="STANDART MODE"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            android:textSize="22sp" />
+
+        <LinearLayout
+            android:id="@+id/menuGrid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></LinearLayout>
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

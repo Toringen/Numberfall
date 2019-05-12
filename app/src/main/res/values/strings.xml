@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Numberfall</string>
+    <string name="PREF_FILE_LEVELS">Levels</string>
+    <string name="PREF_FILE_PROGRESS">Progress</string>
+</resources>
