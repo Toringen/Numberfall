@@ -641,7 +641,8 @@ public class MainActivity extends AppCompatActivity {
     void StackRemove(int id_button) {
         try {
             for (int i = id_button; i < stack_buttons.length; i++) {
-                if (i == stack_size - 1 || i == stack_buttons.length - 1) {
+                //if (i == stack_size - 1 || i == stack_buttons.length - 1) {
+                if (i == stack_buttons.length - 1) {
                     StackSetSign(i, "");
                     break;
                 }

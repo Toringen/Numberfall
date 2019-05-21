@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public class MenuActivity extends AppCompatActivity {
 
@@ -38,6 +40,7 @@ public class MenuActivity extends AppCompatActivity {
     String[] list_difficulties = new String[] { "EASY", "NORMAL", "HARD", "LUNATIC", "EXTRA", "177013",
             "PRINCE", "THE DOUBLE", "REVOLUTIONARY", "KING" };
 
+    Random rand = new Random();
     int BUTTON_HEIGHT;
 
     @Override
@@ -96,14 +99,14 @@ public class MenuActivity extends AppCompatActivity {
             btnPageLeft.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    SetPage(0);
+                    SetPage(0, true);
                 }
             });
 
             btnPageRight.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    SetPage(1);
+                    SetPage(1, true);
                 }
             });
 
@@ -130,7 +133,7 @@ public class MenuActivity extends AppCompatActivity {
                                 int color_base = is_hardmode_level ? Color.WHITE : Color.BLACK;
                                 int color_inv  = is_hardmode_level ? Color.BLACK : Color.WHITE;
                                 if (level_id != -1) {
-                                    Button btn = list_buttons[level_id % 42];
+                                    Button btn = list_buttons[level_id % list_buttons.length];
                                     btn.setBackgroundColor(color_inv);
                                     btn.setTextColor(color_base);
                                 }
@@ -139,7 +142,7 @@ public class MenuActivity extends AppCompatActivity {
                                 btn.setBackgroundColor(color_base);
                                 btn.setTextColor(color_inv);
 
-                                level_id = 42 * id_page + (int)btn.getTag();
+                                level_id = list_buttons.length * id_page + (int)btn.getTag();
                                 if (    state_godmode == 0 && level_id + 1 == 17 ||
                                         state_godmode == 1 && level_id + 1 ==  7 ||
                                         state_godmode == 2 && level_id + 1 == 10 ||
@@ -182,25 +185,52 @@ public class MenuActivity extends AppCompatActivity {
             btnHardmode.setVisibility(View.INVISIBLE);
             images_star[1].setVisibility(View.INVISIBLE);
         }
-        SetPage(id_page);
+        SetPage(id_page, false);
         //for (int i = 0; i < list_buttons.length; i++)
         //    list_buttons[i].setText(i < max_level ? String.valueOf(i + 1) : "X");
     }
 
-    void SetPage(int value) {
+    void SetPage(int value, boolean is_animate) {
         id_page = value;
         btnPageLeft .setVisibility(id_page != 0 ? View.VISIBLE : View.INVISIBLE);
         btnPageRight.setVisibility(id_page != 1 ? View.VISIBLE : View.INVISIBLE);
+        level_id = list_buttons.length * id_page + level_id % list_buttons.length;
+        UpdateInfo(level_id);
 
+		if (is_animate) 
+			SetPage_Thread(value, 0);
+		else {
+			int count_levels = LevelController.GetLevelpack(id_mode).length;
+			for (int i = 0; i < list_buttons.length; i++) {
+				int id_level = i + id_page * list_buttons.length;
+				list_buttons[i].setVisibility(id_level < count_levels ? View.VISIBLE : View.INVISIBLE);
+				list_buttons[i].setText(id_level < max_level ? String.valueOf(id_level + 1) : "X");
+			}	
+		}
+    }
+
+    void SetPage_Thread(final int value, final int index) {
         int count_levels = LevelController.GetLevelpack(id_mode).length;
-        for (int i = 0; i < list_buttons.length; i++) {
-            int id_level = i + id_page * 42;
-            list_buttons[i].setVisibility(id_level < count_levels ? View.VISIBLE : View.INVISIBLE);
-            list_buttons[i].setText(id_level < max_level ? String.valueOf(id_level + 1) : "X");
+        if (index != 0) {
+            for (int i = index - 1; i < list_buttons.length; i += 6) {
+                int id_level = i + value * list_buttons.length;
+                list_buttons[i].setVisibility(id_level < count_levels ? View.VISIBLE : View.INVISIBLE);
+                list_buttons[i].setText(id_level < max_level ? String.valueOf(id_level + 1) : "X");
+            }
         }
 
-        level_id = 42 * id_page + level_id % 42;
-        UpdateInfo(level_id);
+        if (index != 7) {
+            for (int i = index; i < list_buttons.length; i += 6)
+                list_buttons[i].setText("");
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    SetPage_Thread(value, index + 1);
+                }
+            }, 60);
+        }
     }
 
     void SetHardmode(boolean value) {
@@ -235,14 +265,22 @@ public class MenuActivity extends AppCompatActivity {
 
         // Buttons
         for (int i = 0; i < list_buttons.length; i++) {
-            Button btn = list_buttons[i];
-            if (is_hardmode_level ^ (i == level_id % 42)) {
-                btn.setTextColor(Color.WHITE);
-                btn.setBackgroundColor(Color.BLACK);
-            } else {
-                btn.setTextColor(Color.BLACK);
-                btn.setBackgroundColor(Color.WHITE);
-            }
+            final Button btn = list_buttons[i];
+            final boolean is_inverted = (i == level_id % 42);
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (is_hardmode_level ^ is_inverted) {
+                        btn.setTextColor(Color.WHITE);
+                        btn.setBackgroundColor(Color.BLACK);
+                    } else {
+                        btn.setTextColor(Color.BLACK);
+                        btn.setBackgroundColor(Color.WHITE);
+                    }
+                }
+            }, 42 + rand.nextInt(100));
+
         }
         UpdateInfo(level_id);
     }
@@ -250,7 +288,14 @@ public class MenuActivity extends AppCompatActivity {
     void UpdateInfo(int id_level) {
         int count_levels = LevelController.GetLevelpack(id_mode).length;
         if (id_level < 0) return;
-        if (id_level >= max_level || id_level >= count_levels)
+        if (id_level >= count_levels)
+        {
+            btnStart.setEnabled(false);
+            btnStart.setText("Play!");
+            gridLevelInfo.setVisibility(View.INVISIBLE);
+            return;
+        }
+        if (id_level >= max_level)
         {
             int stars_need = StarController.GetCountNeededStars(level_id, count_stars);
             btnStart.setEnabled(false);
