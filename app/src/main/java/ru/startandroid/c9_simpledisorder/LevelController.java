@@ -79,6 +79,16 @@ public class LevelController {
             { "S6", "K0", "R2056000", "HR123456789", "L+_+2*_+10*", "StackSetC", "StackSetC", "StackSetG", "StackSetG", "HStackSetG", "Overflow" },
 
             // The Double (Pow 8)
+            { "S5", "K0", "R618", "C1", "L+2*_-", "StackSetP" },
+            { "S5", "K0", "R0_3398", "C618", "+-", "StackSetP" },
+            { "S5", "K2", "R874989", "C3398", "L+_+10*_*", "StackSetP", "StackSet/" },
+            { "S6", "K3", "R4_84820", "C874989", "L+_*_/", "StackSetP", "StackSetG"  },
+            { "S6", "K5", "R45868_34365", "C84820", "+-*/", "StackSetP", "StackSetP" },
+            { "S6", "K5", "R63_81177_203_0_9", "C34365", "+-*/", "StackSetP", "StackSetP", "StackSetP" },
+            { "S5", "K2", "+*G", "R50000000", "HR700000000", "StackSetP", "Overflow" },
+
+            /*
+            // The Double (Pow 8)
             { "S4", "K1", "R535", "StackSet^2", "L+2*_-" },
             { "S4", "K1", "R897", "StackSet^2", "L+2*_-" },
             { "S4", "K1", "R1932", "StackSet^2", "L+2*_+10*_-" },
@@ -86,7 +96,7 @@ public class LevelController {
             { "S4", "K2", "R4626", "C38", "StackSet^2", "L+2*_-3*" },
             { "S4", "K2", "+*", "R1000000", "StackSet^2" },
             { "S4", "K2", "+*G", "R50000000", "HR700000000", "StackSet^2", "Overflow" },
-
+*/
             // Revolutionary (Libra 9)
             { "S4", "R-60", "HR-120", "+L" },
             { "S4", "R110", "HR136", "+-L", "HP+_42_-_42_L_16", "HK1", "HB0" },
@@ -100,7 +110,8 @@ public class LevelController {
             { "S5", "K1", "*-", "C20", "R-2_-30_-400_-5000", "HR-30_-5000_-700000" },
             { "S5", "K1", "*+", "C-40", "R4_30_200_1000", "HR6_50_400_3000_20000" },
             { "S3",       "*/", "C12", "R11", "HR11_10_9", "HStackSetG" },
-            { "S5", "K2", "P*_70_/_30", "C1", "R899" },
+            { "S5", "K0", "+-", "StackSet*", "StackSet*", "StackSetG", "StackSetC", "StackSetL", "C13118", "R27756", "HC27756", "HR400000" },
+            //{ "S5", "K2", "P*_70_/_30", "C1", "R899" },
             { "S4", "K2", "P*_60_/_40", "C1", "R21_31_41_51", "HC61", "HR51_41_31_21", "HStackSetG", "HStackSetG", "HStackSetG" },
             { "S6", "HS7", "K4", "+-", "R2_3_5_7_9_11_13_17_19_23_27_29_31_37" },
             { "S3", "+", "StackSet*", "StackSet*", "R999", "HR999_1001" },

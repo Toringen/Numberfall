@@ -179,13 +179,18 @@ public class MenuActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        
+        StarController.Initialize(sPrefLevels);
         count_stars = sPrefProgress.getInt("COUNT_STARS", 0);
         max_level = StarController.GetMaxLevel(count_stars);
         if (count_stars < 10) {
             btnHardmode.setVisibility(View.INVISIBLE);
             images_star[1].setVisibility(View.INVISIBLE);
         }
-        SetPage(id_page, false);
+
+        // debug
+        //SetPage(id_page, false);
+
         //for (int i = 0; i < list_buttons.length; i++)
         //    list_buttons[i].setText(i < max_level ? String.valueOf(i + 1) : "X");
     }
@@ -248,6 +253,8 @@ public class MenuActivity extends AppCompatActivity {
         tvResult.setTextColor(clr);
         tvProgress.setTextColor(clr);
         tvSigns.setTextColor(clr);
+        btnPageLeft.setTextColor(clr);
+        btnPageRight.setTextColor(clr);
 
         // Hardmode Icon
         btnHardmode.setImageResource(is_hardmode_level ?
@@ -266,18 +273,14 @@ public class MenuActivity extends AppCompatActivity {
         // Buttons
         for (int i = 0; i < list_buttons.length; i++) {
             final Button btn = list_buttons[i];
-            final boolean is_inverted = (i == level_id % 42);
+            final int lid = id_page * list_buttons.length + i;
+            final boolean is_black = is_hardmode_level ^ (i == level_id % 42);
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (is_hardmode_level ^ is_inverted) {
-                        btn.setTextColor(Color.WHITE);
-                        btn.setBackgroundColor(Color.BLACK);
-                    } else {
-                        btn.setTextColor(Color.BLACK);
-                        btn.setBackgroundColor(Color.WHITE);
-                    }
+                    //btn.setBackgroundColor(getResources().getColor(StarController.GetMenuButtonColor(id_mode, lid, is_black)));
+                    btn.setTextColor(is_black ? Color.WHITE : Color.BLACK);
                 }
             }, 42 + rand.nextInt(100));
 
@@ -362,10 +365,9 @@ public class MenuActivity extends AppCompatActivity {
             tvCurrent.setText("Start: " + value_current);
             tvResult.setText("Result: " + (is_overflow_level ? "more than " : "") + result.substring(4));
 
-            images_star[0].setImageResource(sPrefLevels.getBoolean("M" + id_mode + "L" + level_id, false)
-                    ? R.drawable.menu_star : R.drawable.menu_star_empty);
-            images_star[1].setImageResource(sPrefLevels.getBoolean("M" + id_mode + "H" + level_id, false)
-                    ? R.drawable.menu_star : R.drawable.menu_star_empty);
+            int count_stars = StarController.GetCountStars(id_mode, level_id);
+            images_star[0].setImageResource(count_stars > 0 ? R.drawable.menu_star : R.drawable.menu_star_empty);
+            images_star[1].setImageResource(count_stars > 1 ? R.drawable.menu_star : R.drawable.menu_star_empty);
 
             for (int i = signs.length; i < images_sign.length; i++)
                 images_sign[i].setImageResource(0);

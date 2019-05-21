@@ -299,6 +299,7 @@ public class MainActivity extends AppCompatActivity {
                                 case "G": is_delete_button = false; Gemini(text); break;
                                 case "C": is_delete_button = false; Cancer(b, value); break;
                                 case "L": is_delete_button = false; Libra(b, value); break;
+                                case "P": is_delete_button = false; b.setText("" + (value * value)); break;
                                 case "R": int temp = result_mass[result_id]; result_mass[result_id] = current; current = temp; break;
 
                                 case "&": current &= value; break;
@@ -730,6 +731,7 @@ public class MainActivity extends AppCompatActivity {
             case "G": return "Duplicate";
             case "C": return "Switch";
             case "L": return "Inversion";
+            case "P": return "Pow";
         }
         return GetString(current) + " " + sign + " x";
     }
@@ -745,7 +747,7 @@ public class MainActivity extends AppCompatActivity {
             case "^":
             case "⊕":
                 return GetString(current) + " " + sign + " " + GetString(text) + " = ";
-            case "^2":   return current + " * " + current + " = ";
+            case "^2":  return current + " * " + current + " = ";
             case "+2*":  return current + " + 2 * " + text + " = ";
             case "+10*": return current + " + 10 * " + text + " = ";
             case "-3*":  return current + " - 3 * " + text + " = ";
@@ -756,6 +758,7 @@ public class MainActivity extends AppCompatActivity {
             case "G": return "Duplicate " + text;
             case "L": return "Inversion " + text;
             case "C": return "Switch " + text;
+            case "P": return "Pow " + text;
             default: return "ERROR [" + sign + "]";
         }
     }
