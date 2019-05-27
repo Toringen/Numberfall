@@ -258,12 +258,13 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/layoutLink"
+        android:id="@+id/layoutPlayerMessage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible">
 
         <LinearLayout
+            android:id="@+id/linearLayoutPlayerMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
@@ -272,15 +273,24 @@
             android:layout_marginTop="8dp"
             android:background="@color/menu_backblack"
             android:minHeight="160dp"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:background="@drawable/border_messages">
+
+            <ImageView
+                android:id="@+id/imageMessage"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="0"
+                app:srcCompat="@drawable/menu_star" />
 
             <TextView
-                android:id="@+id/textViewLink"
-                android:layout_width="wrap_content"
+                android:id="@+id/textViewPlayerMessage"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="10dp"
                 android:layout_marginLeft="10dp"

@@ -27,10 +27,10 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     SharedPreferences sPrefLevels, sPrefProgress;
-    ConstraintLayout layoutLink;
-    LinearLayout grid;
-    TextView tvLLabel, tvGoal, tvStep, tvError, tvLink;
-    ImageView imageBackground;
+    ConstraintLayout clMessages;
+    LinearLayout grid, llMessages;
+    TextView tvLLabel, tvGoal, tvStep, tvError, tvMessages;
+    ImageView imageBackground, imageMessages;
     ImageView[] images_sign;
     Button[][] buttons;
     String[][] levels;
@@ -38,12 +38,12 @@ public class MainActivity extends AppCompatActivity {
 
     Random rand = new Random();
     String markers = "";
-    int size, level_id, result_id, current, current_start;
-    int count_stars, id_mode;
-    int[] result_mass;
+    int size, level_id, result_id, id_mode;
+    long current, current_start;
+    long[] result_mass;
     List<Integer> list_empty_numbers = new ArrayList<Integer>();
+    MessageController user_messages = new MessageController();
     float prob_button_empty;
-
     boolean is_overflow_level = false;
     boolean is_binary_level = false;
     boolean is_hardmode_level = false;
@@ -78,8 +78,10 @@ public class MainActivity extends AppCompatActivity {
         tvGoal = (TextView) findViewById(R.id.textViewCurrent);
         tvStep = (TextView) findViewById(R.id.textViewStep);
         tvError = (TextView) findViewById(R.id.textViewError);
-        tvLink = (TextView) findViewById(R.id.textViewLink);
-        layoutLink = findViewById(R.id.layoutLink);
+        tvMessages = (TextView) findViewById(R.id.textViewPlayerMessage);
+        llMessages = findViewById(R.id.linearLayoutPlayerMessage);
+        clMessages = findViewById(R.id.layoutPlayerMessage);
+        imageMessages = findViewById(R.id.imageMessage);
         imageBackground = (ImageView) findViewById(R.id.imageViewBackground);
         Button btnPlay1 = (Button) findViewById(R.id.btnImageLeft);
         Button btnPlay2 = (Button) findViewById(R.id.btnImageRight);
@@ -101,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         level_id = intent.getIntExtra("level_id", 0);
         id_mode = intent.getIntExtra("mode", 0);
         is_hardmode_level = intent.getBooleanExtra("hardmode", false);
-        count_stars = sPrefProgress.getInt("COUNT_STARS", 0);
         levels = LevelController.GetLevelpack(id_mode);
 
         // Animation
@@ -220,16 +221,16 @@ public class MainActivity extends AppCompatActivity {
             images_sign[i] = findViewById(id_signs[i]);
 
         // Link
-        tvLink.setOnClickListener(new View.OnClickListener() {
+        tvMessages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                layoutLink.setVisibility(View.INVISIBLE);
+                user_messages.ShowLastMessage(MainActivity.this, clMessages, llMessages, imageMessages, tvMessages, true);
             }
         });
-        layoutLink.setOnClickListener(new View.OnClickListener() {
+        clMessages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                layoutLink.setVisibility(View.INVISIBLE);
+                user_messages.ShowLastMessage(MainActivity.this, clMessages, llMessages, imageMessages, tvMessages, true);
             }
         });
 
@@ -237,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AchieveController.RestartLevel();
                 Clear();
             }
         });
@@ -252,6 +254,12 @@ public class MainActivity extends AppCompatActivity {
 
         SetSize(4);
         LoadLevel(level_id);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AchieveController.Save();
     }
 
     void SetSize(int value) {
@@ -281,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
 
                             Button b = (Button) v;
                             String text = String.valueOf(b.getText());
-                            int value = Integer.parseInt(text);
+                            long value = Long.parseLong(text);
                             String step_label = GetTextStepLabelAfter(value);
                             boolean is_delete_button = true;
 
@@ -300,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
                                 case "C": is_delete_button = false; Cancer(b, value); break;
                                 case "L": is_delete_button = false; Libra(b, value); break;
                                 case "P": is_delete_button = false; b.setText("" + (value * value)); break;
-                                case "R": int temp = result_mass[result_id]; result_mass[result_id] = current; current = temp; break;
+                                case "R": long temp = result_mass[result_id]; result_mass[result_id] = current; current = temp; break;
 
                                 case "&": current &= value; break;
                                 case "^": current |= value; break;
@@ -310,6 +318,10 @@ public class MainActivity extends AppCompatActivity {
                                 case "-1": current--; break;
                                 case "+1": current++; break;
                             }
+
+                            // Achievements
+                            AchieveController.AddStep(user_messages, sign, current, buttons);
+
 
                             // Just Monika
                             //if (result_mass[result_id] - current == 1)
@@ -338,24 +350,31 @@ public class MainActivity extends AppCompatActivity {
 
                             // New game
                             if (isEndLevel()) {
-                                int add_stars = 0;
+                                AchieveController.EndLevel(user_messages, sign, current, buttons);
 
-                                SharedPreferences.Editor ed = sPrefLevels.edit();
-                                if (!sPrefLevels.getBoolean("M" + id_mode + "L" + level_id, false)) {
-                                    ed.putBoolean("M" + id_mode + "L" + level_id, true);
-                                    add_stars++;
+                                String code = StarController.EndLevel(id_mode, level_id, is_hardmode_level);
+                                for (String s : code.split("_")) {
+                                    int id = Integer.parseInt(s.substring(1));
+                                    if (s.charAt(0) == 'L')
+                                    {
+                                        AchieveController.AddLevel(user_messages, id);
+                                    }
+                                    else
+                                    {
+                                        switch (id) {
+                                            case 5:
+                                            case 15:
+                                            case 20:
+                                            case 25:
+                                            case 30:
+                                            case 35:
+                                            case 50:
+                                            case 60:
+                                            case 70: user_messages.AddMessage("U:Разблокирована новая сложность!"); break;
+                                        }
+                                        AchieveController.AddStar(user_messages, id);
+                                    }
                                 }
-                                if (!sPrefLevels.getBoolean("M" + id_mode + "H" + level_id, false) && is_hardmode_level) {
-                                    ed.putBoolean("M" + id_mode + "H" + level_id, true);
-                                    add_stars++;
-                                }
-                                if (add_stars > 0) {
-                                    SharedPreferences.Editor ed_prog = sPrefProgress.edit();
-                                    ed_prog.putInt("COUNT_STARS", count_stars + add_stars);
-                                    ed_prog.commit();
-                                }
-                                count_stars += add_stars;
-                                ed.commit();
 
                                 final Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
@@ -365,6 +384,8 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }, 500);
                             }
+
+                            user_messages.ShowLastMessage(MainActivity.this, clMessages, llMessages, imageMessages, tvMessages, false);
                         }
                         catch (Exception e){
                             SetMessage(e.getMessage());
@@ -381,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void LoadLevel(int value) {
-        if (value >= levels.length || StarController.GetCountNeededStars(value, count_stars) > 0)
+        if (value >= levels.length || StarController.GetCountNeededStars(value) > 0)
             MainActivity.this.finish();
 
         try {
@@ -391,16 +412,26 @@ public class MainActivity extends AppCompatActivity {
             prob_button_empty = is_hardmode_level ? 0.35f : 0.05f;
             stack_current = 0;
             current_start = 0;
+            list_empty_numbers.clear();
             for (int i = 0; i < sign_chances.length; i++)
                 sign_chances[i] = 0;
             for (int i = 0; i < stack_default.length; i++)
                 stack_default[i] = "";
-            layoutLink.setVisibility(View.INVISIBLE);
+            clMessages.setVisibility(View.INVISIBLE);
             ClearMarker();
-
+            AchieveController.StartLevel();
+/*
+            user_messages.AddMessage("M:Сообщение");
+            user_messages.AddMessage("U:Окончание");
+            user_messages.AddMessage("A:Достижение");
+*/
             for (String code : levels[value]) {
                 SetMessage(code + " ");
                 try {
+                    if (code.charAt(0) == 'N') {
+                        if (is_hardmode_level) continue;
+                        code = code.substring(1);
+                    }
                     if (code.charAt(0) == 'H') {
                         if (!is_hardmode_level) continue;
                         prob_button_empty = 0.07f;
@@ -418,11 +449,8 @@ public class MainActivity extends AppCompatActivity {
                         switch (code.charAt(0)) {
                             case 'A':
                             case 'А':   // link
-                                SetMessage("[Label1]");
                                 if (!sPrefLevels.getBoolean("M" + id_mode + "L" + level_id, false)) {
-                                    SetMessage("[Label2]");
-                                    tvLink.setText(v);
-                                    layoutLink.setVisibility(View.VISIBLE);
+                                    user_messages.AddMessage("M:" + v);
                                 }
                                 break;
                             case 'S': // Size
@@ -434,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case 'R': // Result number (HR - hardmode only)
                                 String[] r_mass = v.split("_");
-                                result_mass = new int[r_mass.length];
+                                result_mass = new long[r_mass.length];
                                 for (int i = 0; i < r_mass.length; i++)
                                     result_mass[i] = Integer.parseInt(r_mass[i]);
                                 break;
@@ -507,6 +535,9 @@ public class MainActivity extends AppCompatActivity {
             else {
                 imageBackground.setVisibility(View.INVISIBLE);
             }
+
+            // Show user message
+            user_messages.ShowLastMessage(MainActivity.this, clMessages, llMessages, imageMessages, tvMessages, false);
 
             // Clear level
             Clear();
@@ -692,12 +723,12 @@ public class MainActivity extends AppCompatActivity {
             }
     }
 
-    void Cancer(Button btn, int value) {
+    void Cancer(Button btn, long value) {
         btn.setText("" + current);
         current = value;
     }
 
-    void Libra(Button btn, int value) {
+    void Libra(Button btn, long value) {
         btn.setText("" + (-value));
         current *= -1;
     }
@@ -710,7 +741,7 @@ public class MainActivity extends AppCompatActivity {
 
         String rez = String.valueOf(current);
         for (int i = result_id; i < result_mass.length; i++) {
-            if (i >= result_id + 2) return rez + "...";
+            if (i >= result_id + 2) return rez + " -> ...";
             rez += " -> " + result_mass[i];
         }
         return rez;
@@ -736,7 +767,7 @@ public class MainActivity extends AppCompatActivity {
         return GetString(current) + " " + sign + " x";
     }
 
-    String GetTextStepLabelAfter(int text) {
+    String GetTextStepLabelAfter(long text) {
         switch (sign)
         {
             case "+":
@@ -763,7 +794,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    String GetString(int val) {
+    String GetString(long val) {
         if (!is_binary_level)
             return String.valueOf(val);
 

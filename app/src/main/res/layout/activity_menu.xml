@@ -7,6 +7,26 @@
     android:layout_height="match_parent"
     tools:context="ru.startandroid.c9_simpledisorder.MenuActivity">
 
+    <ImageView
+        android:id="@+id/menuImagePanel"
+        android:layout_width="wrap_content"
+        android:layout_height="120dp"
+        android:adjustViewBounds="true"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/menu_panel_hardmode" />
+
+    <ImageButton
+        android:id="@+id/menuButtonAchieve"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/menu_achieve" />
+
     <ImageButton
         android:id="@+id/menuButtonHardmode"
         android:layout_width="72dp"
@@ -17,6 +37,63 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/menu_hardmode" />
+
+    <LinearLayout
+        android:id="@+id/menuLayoutAchieveInfo"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginStart="50dp"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp">
+
+            <ImageView
+                android:id="@+id/menuAchieveImageStarLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                app:srcCompat="@drawable/menu_star" />
+
+            <TextView
+                android:id="@+id/menuAchieveTextViewTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text=""
+                android:textAlignment="center"
+                android:textColor="@color/menu_buttonwhite_star0"
+                android:textSize="24sp" />
+
+            <ImageView
+                android:id="@+id/menuAchieveImageStarRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/menu_star" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/menuAchieveTextViewCaption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textAlignment="center"
+            android:textColor="@color/menu_buttonwhite_star0"
+            android:textSize="20sp" />
+
+    </LinearLayout>
 
     <GridLayout
         android:id="@+id/menuLayoutLevelInfo"

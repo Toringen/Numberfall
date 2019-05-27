@@ -27,18 +27,20 @@ public class MenuActivity extends AppCompatActivity {
 
     SharedPreferences sPrefLevels, sPrefProgress;
     ConstraintLayout gridMain;
-    LinearLayout gridLayout;
+    LinearLayout grid, gridAchieveInfo;
     GridLayout gridLevelInfo;
-    TextView tvTitle, tvError, tvDifficulty, tvCurrent, tvResult, tvProgress, tvSigns;
+    Button btnStart, btnPageLeft, btnPageRight;
+    ImageButton btnHardmode, btnAchieve;
+    TextView tvTitle, tvError, tvLevelDifficulty, tvLevelCurrent, tvLevelResult, tvLevelProgress, tvLevelSigns, 
+            tvAchieveTitle, tvAchieveCaption;
+    ImageView imagePanel, imageAchieveStarLeft, imageAchieveStarRight;
     Button[] list_buttons;
     ImageView[] images_star, images_sign;
-    ImageButton btnHardmode;
-    Button btnStart, btnPageLeft, btnPageRight;
-    boolean is_hardmode_level;
-    int level_id, count_stars, max_level;
-    int id_mode, id_page, state_godmode;
-    String[] list_difficulties = new String[] { "EASY", "NORMAL", "HARD", "LUNATIC", "EXTRA", "177013",
-            "PRINCE", "THE DOUBLE", "REVOLUTIONARY", "KING" };
+    boolean[] list_achieve_unlocked;
+    boolean is_hardmode_level, is_achieve;
+    int id_mode, id_page, id_button_choosen, state_godmode, level_id, achieve_id, max_level;
+    String[] list_difficulties = new String[] { "EASY", "NORMAL", "HARD", "LUNATIC",
+            "KNIGHT", "SORCERER", "PRINCE", "REVOLUTIONARY", "THE DOUBLE", "KING" };
 
     Random rand = new Random();
     int BUTTON_HEIGHT;
@@ -52,23 +54,33 @@ public class MenuActivity extends AppCompatActivity {
 
         try {
             SignController.Initialize();
+            AchieveController.Initialize();
+            //AchieveController.Load( getSharedPreferences("Achieve", MODE_PRIVATE));
             sPrefLevels = getSharedPreferences(getString(R.string.PREF_FILE_LEVELS), MODE_PRIVATE);
             sPrefProgress = getSharedPreferences(getString(R.string.PREF_FILE_PROGRESS), MODE_PRIVATE);
             gridMain = findViewById(R.id.menuGridMain);
-            gridLayout = findViewById(R.id.menuGrid);
+            grid = findViewById(R.id.menuGrid);
             gridLevelInfo = findViewById(R.id.menuLayoutLevelInfo);
+            gridAchieveInfo = findViewById(R.id.menuLayoutAchieveInfo);
             tvTitle = findViewById(R.id.menuTextViewTitle);
             tvError = findViewById(R.id.menuTextViewError);
-            tvDifficulty = findViewById(R.id.menuTextViewDiff);
-            tvCurrent = findViewById(R.id.menuTextViewCurrent);
-            tvResult = findViewById(R.id.menuTextViewResult);
-            tvProgress = findViewById(R.id.menuTextViewProgress);
-            tvSigns = findViewById(R.id.menuTextViewSigns);
+            tvLevelDifficulty = findViewById(R.id.menuTextViewDiff);
+            tvLevelCurrent = findViewById(R.id.menuTextViewCurrent);
+            tvLevelResult = findViewById(R.id.menuTextViewResult);
+            tvLevelProgress = findViewById(R.id.menuTextViewProgress);
+            tvLevelSigns = findViewById(R.id.menuTextViewSigns);
+            tvAchieveTitle = findViewById(R.id.menuAchieveTextViewTitle);
+            tvAchieveCaption = findViewById(R.id.menuAchieveTextViewCaption);
             btnHardmode = findViewById(R.id.menuButtonHardmode);
+            btnAchieve = findViewById(R.id.menuButtonAchieve);
             btnStart = findViewById(R.id.menuButtonStart);
             btnPageLeft = findViewById(R.id.menuButtonPageLeft);
             btnPageRight = findViewById(R.id.menuButtonPageRight);
+            imagePanel = findViewById(R.id.menuImagePanel);
+            imageAchieveStarLeft = findViewById(R.id.menuAchieveImageStarLeft);
+            imageAchieveStarRight = findViewById(R.id.menuAchieveImageStarRight);
             list_buttons = new Button[42];
+            id_button_choosen = -1;
             level_id = -1;
             id_mode = 0;
             id_page = 0;
@@ -117,6 +129,13 @@ public class MenuActivity extends AppCompatActivity {
                 }
             });
 
+            btnAchieve.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SetAchieve(!is_achieve);
+                }
+            });
+
             // Создание кнопок
             int k = 0;
             for (int i = 0; i < 6; i++) {
@@ -130,36 +149,48 @@ public class MenuActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             try {
-                                int color_base = is_hardmode_level ? Color.WHITE : Color.BLACK;
-                                int color_inv  = is_hardmode_level ? Color.BLACK : Color.WHITE;
-                                if (level_id != -1) {
-                                    Button btn = list_buttons[level_id % list_buttons.length];
-                                    btn.setBackgroundColor(color_inv);
-                                    btn.setTextColor(color_base);
-                                }
-
                                 Button btn = (Button) v;
-                                btn.setBackgroundColor(color_base);
-                                btn.setTextColor(color_inv);
+                                id_button_choosen = (int)btn.getTag();
 
-                                level_id = list_buttons.length * id_page + (int)btn.getTag();
-                                if (    state_godmode == 0 && level_id + 1 == 17 ||
-                                        state_godmode == 1 && level_id + 1 ==  7 ||
-                                        state_godmode == 2 && level_id + 1 == 10 ||
-                                        state_godmode == 3 && level_id + 1 ==  1 ||
-                                        state_godmode == 4 && level_id + 1 ==  3 ||
-                                        state_godmode == 5 && level_id + 1 == 42) {
-                                    state_godmode++;
-                                    if (state_godmode == 6) {
-                                        SetMessage("GODMODE IS ACTIVATED!");
-                                        SharedPreferences.Editor ed_prog = sPrefProgress.edit();
-                                        ed_prog.putInt("COUNT_STARS", 9999);
-                                        ed_prog.commit();
-                                    }
+                                if (is_achieve)
+                                {
+                                    if (achieve_id != -1)
+                                        UpdateButtonColor(achieve_id);
+                                    achieve_id = id_button_choosen;
+                                    UpdateButtonColor(achieve_id);
+                                    UpdateAchieveInfo(achieve_id);
                                 }
+                                else
+                                {
+                                    int color_base = is_hardmode_level ? Color.WHITE : Color.BLACK;
+                                    int color_inv  = is_hardmode_level ? Color.BLACK : Color.WHITE;
+                                    if (level_id != -1) {
+                                        Button btn_old = list_buttons[level_id % list_buttons.length];
+                                        btn_old.setTextColor(color_base);
+                                        //btn_old.setBackgroundColor(color_inv);
+                                        UpdateButtonColor(level_id % list_buttons.length);
+                                    }
+                                    //btn.setBackgroundColor(color_base);
+                                    btn.setTextColor(color_inv);
+                                    UpdateButtonColor(id_button_choosen);
 
-                                UpdateInfo(level_id);
-
+                                    level_id = list_buttons.length * id_page + id_button_choosen;
+                                    if (    state_godmode == 0 && level_id + 1 == 17 ||
+                                            state_godmode == 1 && level_id + 1 ==  7 ||
+                                            state_godmode == 2 && level_id + 1 == 10 ||
+                                            state_godmode == 3 && level_id + 1 ==  1 ||
+                                            state_godmode == 4 && level_id + 1 ==  3 ||
+                                            state_godmode == 5 && level_id + 1 == 42) {
+                                        state_godmode++;
+                                        if (state_godmode == 6) {
+                                            SetMessage("GODMODE IS ACTIVATED!");
+                                            SharedPreferences.Editor ed_prog = sPrefProgress.edit();
+                                            ed_prog.putInt("COUNT_STARS", 9999);
+                                            ed_prog.commit();
+                                        }
+                                    }
+                                    UpdateLevelInfo(level_id);
+                                }
                             } catch (Exception e) {
                                 SetMessage("BtnClick", e);
                             }
@@ -168,9 +199,10 @@ public class MenuActivity extends AppCompatActivity {
                     list_buttons[k++] = btn;
                     layout.addView(btn, GetLayoutParamsButton());
                 }
-                gridLayout.addView(layout);
+                grid.addView(layout);
             }
 
+            //AchieveController.Load(getSharedPreferences("achievements", MODE_PRIVATE));
         } catch (Exception e) {
             SetMessage("Title", e);
         }
@@ -179,17 +211,14 @@ public class MenuActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        
         StarController.Initialize(sPrefLevels);
-        count_stars = sPrefProgress.getInt("COUNT_STARS", 0);
-        max_level = StarController.GetMaxLevel(count_stars);
-        if (count_stars < 10) {
+        max_level = StarController.GetMaxLevel();
+        if (StarController.count_stars < 10) {
             btnHardmode.setVisibility(View.INVISIBLE);
+            imagePanel.setImageResource(R.drawable.menu_panel);
             images_star[1].setVisibility(View.INVISIBLE);
         }
-
-        // debug
-        //SetPage(id_page, false);
+        if (!is_achieve) SetPage(id_page, false);
 
         //for (int i = 0; i < list_buttons.length; i++)
         //    list_buttons[i].setText(i < max_level ? String.valueOf(i + 1) : "X");
@@ -200,7 +229,7 @@ public class MenuActivity extends AppCompatActivity {
         btnPageLeft .setVisibility(id_page != 0 ? View.VISIBLE : View.INVISIBLE);
         btnPageRight.setVisibility(id_page != 1 ? View.VISIBLE : View.INVISIBLE);
         level_id = list_buttons.length * id_page + level_id % list_buttons.length;
-        UpdateInfo(level_id);
+        UpdateLevelInfo(level_id);
 
 		if (is_animate) 
 			SetPage_Thread(value, 0);
@@ -210,6 +239,7 @@ public class MenuActivity extends AppCompatActivity {
 				int id_level = i + id_page * list_buttons.length;
 				list_buttons[i].setVisibility(id_level < count_levels ? View.VISIBLE : View.INVISIBLE);
 				list_buttons[i].setText(id_level < max_level ? String.valueOf(id_level + 1) : "X");
+                UpdateButtonColor(i);
 			}	
 		}
     }
@@ -221,6 +251,7 @@ public class MenuActivity extends AppCompatActivity {
                 int id_level = i + value * list_buttons.length;
                 list_buttons[i].setVisibility(id_level < count_levels ? View.VISIBLE : View.INVISIBLE);
                 list_buttons[i].setText(id_level < max_level ? String.valueOf(id_level + 1) : "X");
+                UpdateButtonColor(i);
             }
         }
 
@@ -240,19 +271,15 @@ public class MenuActivity extends AppCompatActivity {
 
     void SetHardmode(boolean value) {
         is_hardmode_level = value;
-        tvTitle.setText(is_hardmode_level ? "HARDMODE" : "STANDART MODE");
-        tvTitle.setTextColor(is_hardmode_level ? Color.parseColor("#CC0000") : Color.BLACK);
-        gridMain.setBackgroundColor(is_hardmode_level ?
-                getResources().getColor(R.color.menu_backblack) :
-                getResources().getColor(R.color.menu_backwhite));
+        UpdateTitleAndStuffs();
 
         // TextViews
         int clr = is_hardmode_level ? Color.WHITE : Color.DKGRAY;
-        tvDifficulty.setTextColor(clr);
-        tvCurrent.setTextColor(clr);
-        tvResult.setTextColor(clr);
-        tvProgress.setTextColor(clr);
-        tvSigns.setTextColor(clr);
+        tvLevelDifficulty.setTextColor(clr);
+        tvLevelCurrent.setTextColor(clr);
+        tvLevelResult.setTextColor(clr);
+        tvLevelProgress.setTextColor(clr);
+        tvLevelSigns.setTextColor(clr);
         btnPageLeft.setTextColor(clr);
         btnPageRight.setTextColor(clr);
 
@@ -273,22 +300,61 @@ public class MenuActivity extends AppCompatActivity {
         // Buttons
         for (int i = 0; i < list_buttons.length; i++) {
             final Button btn = list_buttons[i];
-            final int lid = id_page * list_buttons.length + i;
+            final int lid = i;
             final boolean is_black = is_hardmode_level ^ (i == level_id % 42);
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    //btn.setBackgroundColor(getResources().getColor(StarController.GetMenuButtonColor(id_mode, lid, is_black)));
+                    UpdateButtonColor(lid);
                     btn.setTextColor(is_black ? Color.WHITE : Color.BLACK);
                 }
             }, 42 + rand.nextInt(100));
-
         }
-        UpdateInfo(level_id);
+        UpdateLevelInfo(level_id);
     }
 
-    void UpdateInfo(int id_level) {
+    void SetAchieve(boolean value) {
+        try {
+            is_achieve = value;
+            gridAchieveInfo.setVisibility(is_achieve ? View.VISIBLE : View.INVISIBLE);
+            gridLevelInfo.setVisibility(is_achieve ? View.INVISIBLE : View.VISIBLE);
+            btnStart.setVisibility(is_achieve ? View.INVISIBLE : View.VISIBLE);
+            btnHardmode.setVisibility(is_achieve ? View.INVISIBLE : View.VISIBLE);
+            UpdateTitleAndStuffs();
+        } catch (Exception e) {
+            SetMessage("SetAchieve01", e);
+        }
+
+        try {
+            if (is_achieve)
+            {
+                list_achieve_unlocked = AchieveController.GetListUnlocked();
+
+                int count_achieves = list_achieve_unlocked.length;
+                for (int i = 0; i < list_buttons.length; i++) {
+                    Button b = list_buttons[i];
+                    if (i < count_achieves) {
+                        b.setVisibility(View.VISIBLE);
+                        b.setText(list_achieve_unlocked[i] ? "!" : "?");
+                        b.setTextColor(Color.BLACK);
+                        UpdateButtonColor(i);
+                    }
+                    else {
+                        b.setVisibility(View.INVISIBLE);
+                    }
+                }
+            } else {
+                SetPage(id_page, true);
+				if (!is_hardmode_level)
+					list_buttons[achieve_id].setTextColor(Color.WHITE);
+            }
+        } catch (Exception e) {
+            SetMessage("SetAchieve01", e);
+        }
+    }
+
+    void UpdateLevelInfo(int id_level) {
         int count_levels = LevelController.GetLevelpack(id_mode).length;
         if (id_level < 0) return;
         if (id_level >= count_levels)
@@ -296,20 +362,23 @@ public class MenuActivity extends AppCompatActivity {
             btnStart.setEnabled(false);
             btnStart.setText("Play!");
             gridLevelInfo.setVisibility(View.INVISIBLE);
+            imagePanel.setVisibility(View.VISIBLE);
             return;
         }
         if (id_level >= max_level)
         {
-            int stars_need = StarController.GetCountNeededStars(level_id, count_stars);
+            int stars_need = StarController.GetCountNeededStars(level_id);
             btnStart.setEnabled(false);
             btnStart.setText(stars_need + " stars needed");
             gridLevelInfo.setVisibility(View.INVISIBLE);
+            imagePanel.setVisibility(View.VISIBLE);
             return;
         }
 
         btnStart.setEnabled(true);
         btnStart.setText("PLAY!");
         gridLevelInfo.setVisibility(View.VISIBLE);
+        imagePanel.setVisibility(View.INVISIBLE);
         try {
             boolean is_overflow_level = false;
             int value_current = 0, stack_size = 0;
@@ -317,6 +386,10 @@ public class MenuActivity extends AppCompatActivity {
             String[] signs = new String[0];
             for (String code : LevelController.GetLevelpack(id_mode)[level_id]) {
                 try {
+                    if (code.charAt(0) == 'N') {
+                        if (is_hardmode_level) continue;
+                        code = code.substring(1);
+                    }
                     if (code.charAt(0) == 'H') {
                         if (!is_hardmode_level) continue;
                         code = code.substring(1);
@@ -361,9 +434,9 @@ public class MenuActivity extends AppCompatActivity {
             for (int i = 0; i < result_mass.length; i++)
                 result += " -> " + result_mass[i];
 
-            tvDifficulty.setText("Difficulty: " + list_difficulties[level_id / 7]);
-            tvCurrent.setText("Start: " + value_current);
-            tvResult.setText("Result: " + (is_overflow_level ? "more than " : "") + result.substring(4));
+            tvLevelDifficulty.setText("Difficulty: " + list_difficulties[level_id / 7]);
+            tvLevelCurrent.setText("Start: " + value_current);
+            tvLevelResult.setText("Result: " + (is_overflow_level ? "more than " : "") + result.substring(4));
 
             int count_stars = StarController.GetCountStars(id_mode, level_id);
             images_star[0].setImageResource(count_stars > 0 ? R.drawable.menu_star : R.drawable.menu_star_empty);
@@ -375,9 +448,73 @@ public class MenuActivity extends AppCompatActivity {
                 images_sign[i].setImageResource(SignController.GetSign(signs[i]).id_image);
 
         } catch (Exception e) {
-            SetMessage("UpdateInfo", e);
+            SetMessage("UpdateLevelInfo", e);
         }
     }
+
+    void UpdateAchieveInfo(int id_achieve) {
+        if (id_achieve < 0) return;
+        try {
+            imagePanel.setVisibility(View.INVISIBLE);
+            btnStart.setVisibility(View.INVISIBLE);
+            gridLevelInfo.setVisibility(View.INVISIBLE);
+            imagePanel.setVisibility(View.INVISIBLE);
+
+        } catch (Exception e) {
+            SetMessage("UpdateAchieveInfo01", e);
+        }
+
+        try {
+            Achieve a = AchieveController.GetAchieveOnID(id_achieve);
+            if (list_achieve_unlocked[id_achieve]) {
+                tvAchieveTitle.setText(a.GetTitle());
+                tvAchieveCaption.setText(a.GetLabelAfter());
+                imageAchieveStarLeft.setVisibility(View.VISIBLE);
+                imageAchieveStarRight.setVisibility(View.VISIBLE);
+            } else {
+                tvAchieveTitle.setText("???");
+                tvAchieveCaption.setText(a.GetLabelBefore());
+                imageAchieveStarLeft.setVisibility(View.INVISIBLE);
+                imageAchieveStarRight.setVisibility(View.INVISIBLE);
+            }
+        } catch (Exception e) {
+            SetMessage("UpdateAchieveInfo02", e);
+        }
+    }
+
+    void UpdateTitleAndStuffs() {
+        tvTitle.setText(is_achieve ? "ACHIEVEMENTS" : is_hardmode_level ? "HARDMODE" : "STANDART MODE");
+        tvTitle.setTextColor(is_achieve ? getResources().getColor(R.color.menu_button_achieve_noo) :
+                is_hardmode_level ? Color.parseColor("#CC0000") : Color.BLACK);
+        gridMain.setBackgroundColor(is_achieve || is_hardmode_level ?
+                getResources().getColor(R.color.menu_backblack) :
+                getResources().getColor(R.color.menu_backwhite));
+    }
+
+    void UpdateButtonColor(int id_button) {
+        Button btn = list_buttons[id_button];
+        if (btn.getVisibility() == View.INVISIBLE) return;
+
+        if (is_achieve)
+        {
+            int id_color;
+                 if (id_button == id_button_choosen  ) id_color = R.color.menu_button_achieve_clk;
+            else if (list_achieve_unlocked[id_button]) id_color = R.color.menu_button_achieve_yes;
+            else                                       id_color = R.color.menu_button_achieve_noo;
+            btn.setBackgroundColor(getResources().getColor(id_color));
+        }
+        else
+        {
+            if (id_button == id_button_choosen)
+                btn.setBackgroundColor(is_hardmode_level ? Color.WHITE : Color.BLACK);
+            else
+                btn.setBackgroundColor(getResources().getColor(StarController.GetMenuButtonColor(id_mode,
+                        id_button + list_buttons.length * id_page,
+                        is_hardmode_level)));
+        }
+    }
+
+
 
     LinearLayout GetLayoutParamsRow() {
         LinearLayout rez = new LinearLayout(this);

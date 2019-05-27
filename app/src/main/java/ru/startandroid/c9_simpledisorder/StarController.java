@@ -26,23 +26,36 @@ import java.util.Arrays;
 import java.util.Random;
 
 import static android.content.Context.MODE_PRIVATE;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * Created by Vyacheslav on 11.05.2019.
  */
 
 public class StarController {
+    private static SharedPreferences sPrefLevels;
     private static int[][] list_star_count;
+    public static int count_stars, count_levels;
 
-    public static void Initialize(SharedPreferences sPrefLevels) {
-        int count_modes  = 1;
-        int count_levels = LevelController.GetLevelpack(0).length;
-        list_star_count = new int[count_levels][count_modes];
-        for (int k = 0; k < count_modes; k++)
-            for (int i = 0; i < count_levels; i++)
+    public static void Initialize(SharedPreferences sPrefLevels_) {
+        int modes  = 1;
+        int levels = LevelController.GetLevelpack(0).length;
+        sPrefLevels = sPrefLevels_;
+        list_star_count = new int[modes][levels];
+        for (int k = 0; k < modes; k++)
+            for (int i = 0; i < levels; i++)
             {
-                     if (sPrefLevels.getBoolean("M" + k + "H" + i, false)) list_star_count[k][i] = 2;
-                else if (sPrefLevels.getBoolean("M" + k + "L" + i, false)) list_star_count[k][i] = 1;
+                     if (sPrefLevels.getBoolean("M" + k + "H" + i, false)) {
+                         list_star_count[k][i] = 2;
+                         count_stars += 2;
+                         count_levels++;
+                     }
+                else if (sPrefLevels.getBoolean("M" + k + "L" + i, false)) {
+                         list_star_count[k][i] = 1;
+                         count_stars += 2;
+                         count_levels++;
+                     }
             }
     }
 
@@ -50,6 +63,31 @@ public class StarController {
         return list_star_count[mode][level_id];
     }
 
+    public static String EndLevel(int id_mode, int level_id, boolean is_hardmode_level) {
+        int sc = GetCountStars(id_mode, level_id);
+        if (sc == 2 || (sc == 1 && !is_hardmode_level)) return "";
+
+        String rez = "";
+        if (sc == 0) {
+            SharedPreferences.Editor ed = sPrefLevels.edit();
+            ed.putBoolean("M" + id_mode + "L" + level_id, true);
+            ed.commit();
+
+            rez = "L" + level_id + "_S" + count_stars;
+            count_stars++;
+            count_levels++;
+        }
+        if (sc < 2 && is_hardmode_level) {
+            SharedPreferences.Editor ed = sPrefLevels.edit();
+            ed.putBoolean("M" + id_mode + "H" + level_id, true);
+            if (rez == "") rez  =  "S" + count_stars;
+            else           rez += "_S" + count_stars;
+            count_stars++;
+        }
+        return rez;
+    }
+
+    //region Colors and max levels
     public static int GetMenuButtonColor(int mode, int level_id, boolean is_hardmode) {
         return GetMenuButtonColor(GetCountStars(mode, level_id), is_hardmode);
     }
@@ -64,18 +102,16 @@ public class StarController {
         }
     }
 
-
-
-
-    public static int GetMaxLevel(int count_stars) {
+    public static int GetMaxLevel() {
         return count_stars < 50 ?
-                7 * ( 1 + count_stars / 5) :
+                7 * ( 1 + min(count_stars / 5, 4)) :
                 42 + 7 * (-4 + count_stars / 10);
     }
 
-    public static int GetCountNeededStars(int id_level, int count_stars) {
+    public static int GetCountNeededStars(int id_level) {
         return id_level < 42 ?
                       5 * ( id_level       / 7) - count_stars :
                 50 + 10 * ((id_level - 42) / 7) - count_stars;
     }
+    //endregion
 }

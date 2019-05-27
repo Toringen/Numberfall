@@ -8,9 +8,12 @@
     <color name="menu_backwhite">#F9F9F9</color>
     <color name="menu_backblack">#101010</color>
     <color name="menu_buttonwhite_star0">#FFF</color>
-    <color name="menu_buttonwhite_star1">#FFB</color>
-    <color name="menu_buttonwhite_star2">#FF8</color>
+    <color name="menu_buttonwhite_star1">#FFFA88</color>
+    <color name="menu_buttonwhite_star2">#FF0</color>
     <color name="menu_buttonblack_star0">#000</color>
-    <color name="menu_buttonblack_star1">#220</color>
-    <color name="menu_buttonblack_star2">#440</color>
+    <color name="menu_buttonblack_star1">#310</color>
+    <color name="menu_buttonblack_star2">#700</color>
+    <color name="menu_button_achieve_noo">#BBF</color>
+    <color name="menu_button_achieve_yes">#44F</color>
+    <color name="menu_button_achieve_clk">#00F</color>
 </resources>
