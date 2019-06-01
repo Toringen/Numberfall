@@ -258,8 +258,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         AchieveController.Save();
+        super.onDestroy();
     }
 
     void SetSize(int value) {
@@ -353,28 +353,29 @@ public class MainActivity extends AppCompatActivity {
                                 AchieveController.EndLevel(user_messages, sign, current, buttons);
 
                                 String code = StarController.EndLevel(id_mode, level_id, is_hardmode_level);
-                                for (String s : code.split("_")) {
-                                    int id = Integer.parseInt(s.substring(1));
-                                    if (s.charAt(0) == 'L')
-                                    {
-                                        AchieveController.AddLevel(user_messages, id);
-                                    }
-                                    else
-                                    {
-                                        switch (id) {
-                                            case 5:
-                                            case 15:
-                                            case 20:
-                                            case 25:
-                                            case 30:
-                                            case 35:
-                                            case 50:
-                                            case 60:
-                                            case 70: user_messages.AddMessage("U:Разблокирована новая сложность!"); break;
+                                if (code != "")
+                                    for (String s : code.split("_")) {
+                                        int id = Integer.parseInt(s.substring(1));
+                                        if (s.charAt(0) == 'L')
+                                        {
+                                            AchieveController.AddLevel(user_messages, id);
                                         }
-                                        AchieveController.AddStar(user_messages, id);
+                                        else
+                                        {
+                                            switch (id) {
+                                                case 5:
+                                                case 15:
+                                                case 20:
+                                                case 25:
+                                                case 30:
+                                                case 35:
+                                                case 50:
+                                                case 60:
+                                                case 70: user_messages.AddMessage("U:Разблокирована новая сложность!"); break;
+                                            }
+                                            AchieveController.AddStar(user_messages, id);
+                                        }
                                     }
-                                }
 
                                 final Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {

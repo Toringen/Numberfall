@@ -55,7 +55,7 @@ public class MenuActivity extends AppCompatActivity {
         try {
             SignController.Initialize();
             AchieveController.Initialize();
-            //AchieveController.Load( getSharedPreferences("Achieve", MODE_PRIVATE));
+            AchieveController.Load( getSharedPreferences("Achieve", MODE_PRIVATE));
             sPrefLevels = getSharedPreferences(getString(R.string.PREF_FILE_LEVELS), MODE_PRIVATE);
             sPrefProgress = getSharedPreferences(getString(R.string.PREF_FILE_PROGRESS), MODE_PRIVATE);
             gridMain = findViewById(R.id.menuGridMain);
@@ -330,14 +330,14 @@ public class MenuActivity extends AppCompatActivity {
             if (is_achieve)
             {
                 list_achieve_unlocked = AchieveController.GetListUnlocked();
+                imagePanel.setVisibility(View.INVISIBLE);
 
                 int count_achieves = list_achieve_unlocked.length;
                 for (int i = 0; i < list_buttons.length; i++) {
                     Button b = list_buttons[i];
                     if (i < count_achieves) {
                         b.setVisibility(View.VISIBLE);
-                        b.setText(list_achieve_unlocked[i] ? "!" : "?");
-                        b.setTextColor(Color.BLACK);
+                        b.setText("");
                         UpdateButtonColor(i);
                     }
                     else {
@@ -346,8 +346,9 @@ public class MenuActivity extends AppCompatActivity {
                 }
             } else {
                 SetPage(id_page, true);
-				if (!is_hardmode_level)
-					list_buttons[achieve_id].setTextColor(Color.WHITE);
+				//if (!is_hardmode_level)
+				//	list_buttons[achieve_id].setTextColor(Color.BLACK);
+
             }
         } catch (Exception e) {
             SetMessage("SetAchieve01", e);
@@ -458,8 +459,6 @@ public class MenuActivity extends AppCompatActivity {
             imagePanel.setVisibility(View.INVISIBLE);
             btnStart.setVisibility(View.INVISIBLE);
             gridLevelInfo.setVisibility(View.INVISIBLE);
-            imagePanel.setVisibility(View.INVISIBLE);
-
         } catch (Exception e) {
             SetMessage("UpdateAchieveInfo01", e);
         }
@@ -489,6 +488,9 @@ public class MenuActivity extends AppCompatActivity {
         gridMain.setBackgroundColor(is_achieve || is_hardmode_level ?
                 getResources().getColor(R.color.menu_backblack) :
                 getResources().getColor(R.color.menu_backwhite));
+        btnPageLeft.setVisibility(is_achieve ? View.INVISIBLE : View.VISIBLE);
+        btnPageRight.setVisibility(is_achieve ? View.INVISIBLE : View.VISIBLE);
+
     }
 
     void UpdateButtonColor(int id_button) {
@@ -498,10 +500,10 @@ public class MenuActivity extends AppCompatActivity {
         if (is_achieve)
         {
             int id_color;
-                 if (id_button == id_button_choosen  ) id_color = R.color.menu_button_achieve_clk;
-            else if (list_achieve_unlocked[id_button]) id_color = R.color.menu_button_achieve_yes;
-            else                                       id_color = R.color.menu_button_achieve_noo;
-            btn.setBackgroundColor(getResources().getColor(id_color));
+                 if (id_button == id_button_choosen  ) id_color = R.drawable.menu_star_blue;
+            else if (list_achieve_unlocked[id_button]) id_color = R.drawable.menu_star;
+            else                                       id_color = R.drawable.menu_star_empty;
+            btn.setBackgroundResource(id_color);
         }
         else
         {

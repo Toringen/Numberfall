@@ -5,7 +5,7 @@ package ru.startandroid.c9_simpledisorder;
  */
 
 public class Achieve {
-    private int id, id_image, counter, max;
+    private int id, id_image, counter, counter_max, counter_goal;
     private String code, title, caption_before, caption_after;
     private boolean is_unlocked;
 
@@ -17,11 +17,12 @@ public class Achieve {
         this.caption_before = caption_before;
         this.caption_after = (caption_after == "") ? caption_before : caption_after;
         this.counter = 0;
-        this.max = 0;
+        this.counter_max = 0;
+        this.counter_goal = 0;
         is_unlocked = false;
     }
 
-    public Achieve(int id, String code, String title, int id_image, String caption_before, String caption_after, int max) {
+    public Achieve(int id, String code, String title, int id_image, String caption_before, String caption_after, int counter_goal) {
         this.id = id;
         this.code = code;
         this.title = title;
@@ -29,7 +30,8 @@ public class Achieve {
         this.caption_before = caption_before;
         this.caption_after = (caption_after == "") ? caption_before : caption_after;
         this.counter = 0;
-        this.max = max;
+        this.counter_max = 0;
+        this.counter_goal = counter_goal;
         is_unlocked = false;
     }
 
@@ -42,7 +44,7 @@ public class Achieve {
     }
 
     public String GetLabelBefore() {
-        return caption_before;
+        return caption_before + (counter_goal == 0 ? "" : String.format(" (%1$s / %2$s)", counter_max, counter_goal));
     }
 
     public String GetLabelAfter() {
@@ -76,7 +78,8 @@ public class Achieve {
     public boolean SetCounter(int value) {
         if (is_unlocked) return false;
         counter = value;
-        is_unlocked = (counter >= max);
+        if (counter >= counter_max) counter_max = counter;
+        is_unlocked = (counter >= counter_goal);
         return is_unlocked;
     }
 }

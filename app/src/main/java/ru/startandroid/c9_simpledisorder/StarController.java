@@ -53,19 +53,26 @@ public class StarController {
                      }
                 else if (sPrefLevels.getBoolean("M" + k + "L" + i, false)) {
                          list_star_count[k][i] = 1;
-                         count_stars += 2;
+                         count_stars++;
                          count_levels++;
                      }
             }
+            MessageController m = new MessageController();
+            AchieveController.AddStar(m, count_stars);
+            AchieveController.AddLevel(m, count_levels);
     }
 
     public static int GetCountStars(int mode, int level_id) {
         return list_star_count[mode][level_id];
     }
 
+    public static void SetCountStars(int mode, int level_id, int value) {
+        list_star_count[mode][level_id] = value;
+    }
+
     public static String EndLevel(int id_mode, int level_id, boolean is_hardmode_level) {
         int sc = GetCountStars(id_mode, level_id);
-        if (sc == 2 || (sc == 1 && !is_hardmode_level)) return "";
+        //if (sc == 2 || (sc == 1 && !is_hardmode_level)) return "";
 
         String rez = "";
         if (sc == 0) {
@@ -74,14 +81,18 @@ public class StarController {
             ed.commit();
 
             rez = "L" + level_id + "_S" + count_stars;
+            SetCountStars(id_mode, level_id, 1);
             count_stars++;
             count_levels++;
         }
         if (sc < 2 && is_hardmode_level) {
             SharedPreferences.Editor ed = sPrefLevels.edit();
             ed.putBoolean("M" + id_mode + "H" + level_id, true);
-            if (rez == "") rez  =  "S" + count_stars;
+            ed.commit();
+
+            if (rez == "") rez  = "S" + count_stars + "_S" + count_stars;
             else           rez += "_S" + count_stars;
+            SetCountStars(id_mode, level_id, 2);
             count_stars++;
         }
         return rez;

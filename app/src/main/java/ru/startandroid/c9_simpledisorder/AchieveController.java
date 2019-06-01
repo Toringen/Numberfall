@@ -29,8 +29,8 @@ public class AchieveController {
                 new Achieve(1, "L42", "42", R.drawable.sp_xor, "Пройти 42 уровня", "", 42),
                 new Achieve(1, "L70", "", R.drawable.sp_xor, "Пройти все уровни", "", 70),
 
-                new Achieve(1, "S10",  "Darkness begins", R.drawable.sp_xor, "Открыть усложенный режим", "", 10),
-                new Achieve(1, "S80",  "", R.drawable.sp_xor, "Открыть все уровни", "", 80),
+                new Achieve(1, "S10",  "Darkness begins", R.drawable.sp_xor, "Открыть усложенный режим", ""),
+                new Achieve(1, "S80",  "", R.drawable.sp_xor, "Открыть все уровни", ""),
                 new Achieve(1, "S50",  "Starlight", R.drawable.sp_xor, "Набрать 50 звезд", "", 50),
                 new Achieve(1, "S140", "Purity", R.drawable.sp_xor, "Набрать 140 звезд", "", 140),
 
@@ -69,21 +69,22 @@ public class AchieveController {
         if (am10.GetCounter() == 0 && current >= 100000) am10.SetCounter(1);
         else if (am10.GetCounter() == 1 && current <= 0) AchieveUnlock(m, am10);
 
-        //Achieve af0 = GetAchieve("FIELD_ZERO");
-        //if (!af0.isUnlocked() && CheckAchieveFieldZero(buttons)) AchieveUnlock(m, af0);
+        Achieve af0 = GetAchieve("FIELD_ZERO");
+        if (!af0.isUnlocked() && CheckAchieveFieldZero(buttons)) AchieveUnlock(m, af0);
 
         AchieveAddCounter(m, "STEPS_LEVEL_50", 1);
         AchieveAddCounter(m, "STEPS_LEVEL_99", 1);
         AchieveAddCounter(m, "STEPS_2056", 1);
         AchieveAddCounter(m, "STEPS_13118", 1);
-/*
+
+        int count_steps = GetAchieve("STEPS_LEVEL_50").GetCounter();
         CheckAchieveUnlock(m, "MOVE_177013", current == 177013);
-        CheckAchieveUnlock(m, "TIME_5L", Calendar.getInstance().getTime().getTime() - mass_dates[4].getTime() <= 1000);
-        CheckAchieveUnlock(m, "SAME_4", GetAchieve("STEPS_LEVEL_50").GetCounter() >= 4
+        CheckAchieveUnlock(m, "TIME_5L", count_steps >= 4 && Calendar.getInstance().getTime().getTime() - mass_dates[4].getTime() <= 1200);
+        CheckAchieveUnlock(m, "SAME_4", count_steps >= 4
                 && current == mass_values[1]
                 && current == mass_values[2]
                 && current == mass_values[3]);
-*/
+
         if (mass_signs[0] == mass_signs[1]) {
             AchieveAddCounter(m, "SIGNS_SAME_10", 1);
             AchieveAddCounter(m, "SIGNS_SAME_15", 1);
@@ -107,15 +108,17 @@ public class AchieveController {
     }
 
     public static void AddLevel(MessageController m, int count_levels) {
-        CheckAchieveUnlock(m, "L42", count_levels >= 42);
-        CheckAchieveUnlock(m, "L70", count_levels >= 70);
+        AchieveSetCounter(m, "L42", count_levels);
+        AchieveSetCounter(m, "L70", count_levels);
+        //CheckAchieveUnlock(m, "L42", count_levels >= 42);
+        //CheckAchieveUnlock(m, "L70", count_levels >= 70);
     }
 
     public static void AddStar(MessageController m, int count_stars) {
         CheckAchieveUnlock(m, "S10", count_stars >= 10);
-        CheckAchieveUnlock(m, "S50", count_stars >= 50);
         CheckAchieveUnlock(m, "S80", count_stars >= 80);
-        CheckAchieveUnlock(m, "S140", count_stars == 140);
+        AchieveSetCounter(m, "S50", count_stars);
+        AchieveSetCounter(m, "S140", count_stars);
     }
 
     public static void StartLevel() {
@@ -129,6 +132,7 @@ public class AchieveController {
     }
 
     public static void RestartLevel() {
+        StartLevel();
         AchieveClearCounter("WIN_3");
         AchieveClearCounter("WIN_5");
     }
@@ -139,8 +143,8 @@ public class AchieveController {
         AchieveAddCounter(m, "WIN_3", 1);
         AchieveAddCounter(m, "WIN_5", 1);
 
-        //Achieve af0 = GetAchieve("FIELD_EMPTY");
-        //if (!af0.isUnlocked() && CheckAchieveFieldEmpty(buttons)) AchieveUnlock(m, af0);
+        Achieve af0 = GetAchieve("FIELD_EMPTY");
+        if (!af0.isUnlocked() && CheckAchieveFieldEmpty(buttons)) AchieveUnlock(m, af0);
     }
 
     private static boolean CheckAchieveFieldZero(Button[][] buttons) {
@@ -154,7 +158,7 @@ public class AchieveController {
     private static boolean CheckAchieveFieldEmpty(Button[][] buttons) {
         for (Button[] mass : buttons)
             for (Button btn : mass)
-                if (btn.isEnabled())
+                if (btn.getText() != "")
                     return false;
         return true;
     }
@@ -190,6 +194,15 @@ public class AchieveController {
     private static boolean AchieveAddCounter(MessageController m, String code, int counter_add) {
         Achieve a = GetAchieve(code);
         if (a.AddCounter(counter_add)) {
+            m.AddMessage("A:" + a.GetLabelAfter());
+            return true;
+        };
+        return false;
+    }
+
+    private static boolean AchieveSetCounter(MessageController m, String code, int counter_add) {
+        Achieve a = GetAchieve(code);
+        if (a.SetCounter(counter_add)) {
             m.AddMessage("A:" + a.GetLabelAfter());
             return true;
         };
