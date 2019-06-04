@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -38,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     Random rand = new Random();
     String markers = "";
-    int size, level_id, result_id, id_mode;
+    int size, level_id, result_id, sorcerer_mode1, sorcerer_mode2, id_mode;
     long current, current_start;
     long[] result_mass;
     List<Integer> list_empty_numbers = new ArrayList<Integer>();
@@ -49,12 +51,12 @@ public class MainActivity extends AppCompatActivity {
     boolean is_hardmode_level = false;
 
     // Play (Up) buttons
-    Button[] play_buttons;
+    ImageView[] play_buttons;
     int play_id_button, play_id_sign;
     String sign;
 
     // Stack buttons
-    Button[] stack_buttons;
+    ImageView[] stack_buttons;
     String[] stack_default;
     MediaPlayer stack_player;
     int stack_current = 0, stack_size = 0;
@@ -83,13 +85,8 @@ public class MainActivity extends AppCompatActivity {
         clMessages = findViewById(R.id.layoutPlayerMessage);
         imageMessages = findViewById(R.id.imageMessage);
         imageBackground = (ImageView) findViewById(R.id.imageViewBackground);
-        Button btnPlay1 = (Button) findViewById(R.id.btnImageLeft);
-        Button btnPlay2 = (Button) findViewById(R.id.btnImageRight);
-        Button btnStack1 = (Button) findViewById(R.id.btnStack1);
-        Button btnStack2 = (Button) findViewById(R.id.btnStack2);
-        Button btnStack3 = (Button) findViewById(R.id.btnStack3);
-        Button btnStack4 = (Button) findViewById(R.id.btnStack4);
-        Button btnStack5 = (Button) findViewById(R.id.btnStack5);
+        ImageView btnPlay1  = findViewById(R.id.btnImageLeft);
+        ImageView btnPlay2  = findViewById(R.id.btnImageRight);
 
         // Размер экрана
         Display display = getWindowManager().getDefaultDisplay();
@@ -129,8 +126,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Play buttons
-        play_buttons = new Button[] { btnPlay1, btnPlay2 };
-        for (Button btn : play_buttons) {
+        play_buttons = new ImageView[] { btnPlay1, btnPlay2 };
+        for (ImageView btn : play_buttons) {
+            btn.setBackgroundResource(0);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -145,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     };
 
-                    Button btn = (Button) v;
+                    ImageView btn = (ImageView) v;
                     int btn_id = Arrays.asList(play_buttons).indexOf(btn);
                     String btn_sign = btn.getTag().toString();
                     is_stack_button = false;
@@ -159,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
                         play_id_button = btn_id;
                         play_id_sign = SignController.GetSignIndex(sign);
                         PlayButtonsEnable();
+                        SetBlackWhite(btn);
                     }
                     else if (click_listener >= 2)
                     {
@@ -170,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                         StackSetSign(stack_current, btn_sign);    // Change stack button
                         PlayButtonsDisable();
                         PlaySound(stack_player);
+                        SetBlackWhiteClear();
                         tvStep.setText("");
                         stack_current++;
                     }
@@ -184,14 +184,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Stack buttons
-        stack_buttons = new Button[] { btnStack1, btnStack2, btnStack3, btnStack4, btnStack5 };
+        ImageView btnStack1 = findViewById(R.id.btnStack1);
+        ImageView btnStack2 = findViewById(R.id.btnStack2);
+        ImageView btnStack3 = findViewById(R.id.btnStack3);
+        ImageView btnStack4 = findViewById(R.id.btnStack4);
+        ImageView btnStack5 = findViewById(R.id.btnStack5);
+        stack_buttons = new ImageView[] { btnStack1, btnStack2, btnStack3, btnStack4, btnStack5 };
         stack_default = new String[] { "", "", "", "", "" };
-        for (Button btn : stack_buttons) {
+        for (ImageView btn : stack_buttons) {
+            btn.setBackgroundResource(0);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     try {
-                        Button btn = (Button) v;
+                        ImageView btn = (ImageView) v;
                         String btn_sign = btn.getTag().toString();
                         if (btn_sign == "" || btn_sign == " ")
                             return;
@@ -203,9 +209,10 @@ public class MainActivity extends AppCompatActivity {
                         is_stack_button = true;
                         tvStep.setText(GetTextStepLabel());
                         PlayButtonsEnable();
+                        SetBlackWhite(btn);
                     }
                     catch (Exception e) {
-                        Button btn = (Button) v;
+                        ImageView btn = (ImageView) v;
                         CharSequence tag = btn.getTag().toString();
                         SetMessage("TAG: " + tag + "; Err:" + e.getMessage());
                     }
@@ -346,7 +353,9 @@ public class MainActivity extends AppCompatActivity {
 
                             // Clear
                             PlayButtonsDisable();
-                            SelectionClear();
+                            SetBlackWhiteClear();
+                            play_id_button = -1;
+                            sign = " ";
 
                             // New game
                             if (isEndLevel()) {
@@ -411,6 +420,8 @@ public class MainActivity extends AppCompatActivity {
             is_overflow_level = false;
             is_binary_level = false;
             prob_button_empty = is_hardmode_level ? 0.35f : 0.05f;
+            sorcerer_mode1 = 0;
+            sorcerer_mode2 = 0;
             stack_current = 0;
             current_start = 0;
             list_empty_numbers.clear();
@@ -421,13 +432,13 @@ public class MainActivity extends AppCompatActivity {
             clMessages.setVisibility(View.INVISIBLE);
             ClearMarker();
             AchieveController.StartLevel();
-/*
-            user_messages.AddMessage("M:Сообщение");
-            user_messages.AddMessage("U:Окончание");
-            user_messages.AddMessage("A:Достижение");
-*/
+
+            //user_messages.AddMessage("M:Сообщение");
+            //user_messages.AddMessage("U:Окончание");
+            //user_messages.AddMessage("A:Достижение");
+
             for (String code : levels[value]) {
-                SetMessage(code + " ");
+                //SetMessage(code + " ");
                 try {
                     if (code.charAt(0) == 'N') {
                         if (is_hardmode_level) continue;
@@ -444,6 +455,10 @@ public class MainActivity extends AppCompatActivity {
                         is_binary_level = true;
                     else if (code == "Overflow")
                         is_overflow_level = !is_overflow_level;
+                    else if (code.startsWith("Sorcerer"))
+                        sorcerer_mode1 = Integer.parseInt(code.substring(8));
+                    else if (code.startsWith("Repeat"))
+                        sorcerer_mode2 = Integer.parseInt(code.substring(6));
                     else if (code.startsWith("StackSet"))
                         stack_default[stack_current++] = code.substring(8);
                     else
@@ -560,8 +575,10 @@ public class MainActivity extends AppCompatActivity {
                 && is_overflow_level ? 24 : 16);
         tvStep.setTextColor(GetColorGoalLabel());
         tvStep.setText("");
-        SelectionClear();
+        play_id_button = -1;
+        sign = " ";
         StackClear();
+        SetBlackWhiteClear();
 
         if (tvGoal.getText().length() < 18
                 && result_mass[0] <= 99999
@@ -583,7 +600,9 @@ public class MainActivity extends AppCompatActivity {
         {
             for (int j = 0; j < size; j++)
             {
-                int id = j + size * i + (is_binary_level ? 0 : 1);
+                int id = j + size * i + (is_binary_level || sorcerer_mode1 != 0 ? 0 : 1);
+                if (sorcerer_mode1 != 0) id = 1 + id % sorcerer_mode1;
+                if (sorcerer_mode2 != 0) id = sorcerer_mode2;
                 anim_sign *= -1;
 
                 // Set text and enable
@@ -615,19 +634,19 @@ public class MainActivity extends AppCompatActivity {
     void PlayButtonChange(int id_button){
         int id_sign = 0;
         try {
-            Button btn = play_buttons[id_button];
+            ImageView btn = play_buttons[id_button];
             double chance = rand.nextDouble();
             while (chance >= sign_chances[id_sign])
                 id_sign++;
 
             // A заменяется на умножение, если это спец-уровень.
             // Видимо, А - это что-то читерское.
-            if (SignController.list_signs[id_sign].sign.equals("A") && is_overflow_level)
-                id_sign = 2;
+            //if (SignController.list_signs[id_sign].sign.equals("A") && is_overflow_level)
+            //    id_sign = 2;
 
             // Set sign
             Sign sign = SignController.list_signs[id_sign];
-            btn.setBackgroundResource(sign.id_image);
+            btn.setImageResource(sign.id_image);
             btn.setTag(sign.sign);
         }
         catch (Exception e) {
@@ -648,22 +667,17 @@ public class MainActivity extends AppCompatActivity {
                     btn.setEnabled(true);
     }
 
-    void SelectionClear() {
-        play_id_button = -1;
-        sign = " ";
-    }
-
     void StackSetSign(int id_button, String sign){
         try {
-            Button btn = stack_buttons[id_button];
+            ImageView btn = stack_buttons[id_button];
             btn.setTag(sign);
             if (sign != "")
-                btn.setBackgroundResource(SignController.GetSign(sign).id_image);
+                btn.setImageResource(SignController.GetSign(sign).id_image);
             else {
                 if (id_button < stack_size)
-                    btn.setBackgroundResource(R.drawable.s_empty);
+                    btn.setImageResource(R.drawable.s_empty);
                 else
-                    btn.setBackgroundResource(0);
+                    btn.setImageResource(0);
             }
         }
         catch (Exception e) {
@@ -680,7 +694,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
 
-                Button next_stack = stack_buttons[i + 1];
+                ImageView next_stack = stack_buttons[i + 1];
                 String tag = next_stack.getTag().toString();
                 StackSetSign(i, tag);
                 if (tag == "") break;
@@ -735,6 +749,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //region Оформление
+
+    void SetBlackWhite(ImageView click_btn) {
+        try {
+            ColorMatrix bwMatrix = new ColorMatrix();
+            bwMatrix.set(new float[] {
+                    1, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0,
+                    0, 0, 0, 1, 0 });
+            ColorMatrixColorFilter bwFilter = new ColorMatrixColorFilter(bwMatrix);
+
+            ColorMatrix clrMatrix = new ColorMatrix();
+            clrMatrix.setSaturation(1);
+            ColorMatrixColorFilter clrFilter = new ColorMatrixColorFilter(clrMatrix);
+
+            for (ImageView btn : play_buttons)
+                btn.setColorFilter(btn.equals(click_btn) ? clrFilter : bwFilter);
+            for (ImageView btn : stack_buttons)
+                btn.setColorFilter(btn.equals(click_btn) ? clrFilter : bwFilter);
+                //SetMessage(btn.equals(click_btn) ? "1" : "0");
+        }
+        catch (Exception e) {
+            SetMessage("SetBlackWhite:" + e.getMessage());
+        }
+    }
+
+    void SetBlackWhiteClear() {
+        try {
+            ColorMatrix clrMatrix = new ColorMatrix();
+            clrMatrix.setSaturation(1 /* 0.88f */);
+            ColorMatrixColorFilter clrFilter = new ColorMatrixColorFilter(clrMatrix);
+
+            for (ImageView btn : play_buttons)
+                btn.setColorFilter(clrFilter);
+            for (ImageView btn : stack_buttons)
+                btn.setColorFilter(clrFilter);
+        }
+        catch (Exception e) {
+            SetMessage("SetBlackWhite:" + e.getMessage());
+        }
+    }
 
     String GetTextGoalLabel() {
         if (is_overflow_level)
@@ -902,8 +957,7 @@ public class MainActivity extends AppCompatActivity {
         }, 1000);
     }
 
-    void DeleteMonika()
-    {
+    void DeleteMonika() {
         if (!is_overflow_level)
         {
             imageBackground.setImageResource(R.drawable.background);
@@ -915,9 +969,9 @@ public class MainActivity extends AppCompatActivity {
             int[] mon = { R.drawable.background_monika, R.drawable.background_monika2 };
 
             imageBackground.setImageResource(mon[1]);
-            for (Button btn : play_buttons)
+            for (ImageView btn : play_buttons)
                 imageBackground.setImageResource(mon[rand.nextInt(2)]);
-            for (Button btn : stack_buttons)
+            for (ImageView btn : stack_buttons)
                 imageBackground.setImageResource(mon[rand.nextInt(2)]);
         }
     }

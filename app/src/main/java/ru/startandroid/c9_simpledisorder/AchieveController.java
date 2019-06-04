@@ -43,13 +43,15 @@ public class AchieveController {
                 new Achieve(1, "STEPS_13118",    "Maniac", R.drawable.sp_xor, "Использовать 13118 чисел", "", 13118),
                 new Achieve(1, "STEPS_LEVEL_50", "", R.drawable.sp_xor, "Использовать 50 чисел за уровень", "", 50),
                 new Achieve(1, "STEPS_LEVEL_99", "", R.drawable.sp_xor, "Использовать 99 чисел за уровень", "", 99),
+                new Achieve(1, "STEPS_LEVEL_200", "", R.drawable.sp_xor, "Использовать 200 чисел за уровень", "", 200),
                 new Achieve(1, "MOVE_177013",    "Worst Ending Ever", R.drawable.sp_xor, "Набрать ровно 177013", ""),
                 new Achieve(1, "MOVE_100000_0",  "There and back again", R.drawable.sp_xor, "Дойти до 100000, а потом обратно до 0", "", 2),
 
                 new Achieve(1, "FIELD_EMPTY", "", R.drawable.sp_xor, "Выиграть, использовав все числа на уровне", ""),
                 new Achieve(0, "SIGN_ALL", "", R.drawable.sp_xor, "Использовать все знаки в игре", ""),
                 new Achieve(1, "SAME_4", "", R.drawable.sp_xor, "4 раза подряд остаться с одним и тем же числом", "", 4),
-                new Achieve(1, "TIME_5L", "", R.drawable.sp_xor, "Использовать 5 знаков за секунду", ""),
+                new Achieve(1, "SAME_8", "", R.drawable.sp_xor, "8 раз подряд остаться с одним и тем же числом", "", 8),
+                new Achieve(1, "TIME_5L", "", R.drawable.sp_xor, "Использовать 5 знаков за 2 секунды", ""),
                 new Achieve(1, "TIME_5S", "", R.drawable.sp_xor, "Пройти уровень за 5 секунд", ""),
                 new Achieve(1, "WIN_3", "", R.drawable.sp_xor, "Выиграть 3 раза подряд без рестартов", "", 3),
                 new Achieve(1, "WIN_5", "", R.drawable.sp_xor, "Выиграть 5 раз подряд без рестартов", "", 5),
@@ -74,16 +76,26 @@ public class AchieveController {
 
         AchieveAddCounter(m, "STEPS_LEVEL_50", 1);
         AchieveAddCounter(m, "STEPS_LEVEL_99", 1);
+        AchieveAddCounter(m, "STEPS_LEVEL_200", 1);
         AchieveAddCounter(m, "STEPS_2056", 1);
         AchieveAddCounter(m, "STEPS_13118", 1);
 
         int count_steps = GetAchieve("STEPS_LEVEL_50").GetCounter();
         CheckAchieveUnlock(m, "MOVE_177013", current == 177013);
-        CheckAchieveUnlock(m, "TIME_5L", count_steps >= 4 && Calendar.getInstance().getTime().getTime() - mass_dates[4].getTime() <= 1200);
-        CheckAchieveUnlock(m, "SAME_4", count_steps >= 4
+        CheckAchieveUnlock(m, "TIME_5L", count_steps >= 4 && Calendar.getInstance().getTime().getTime() - mass_dates[4].getTime() <= 2000);
+/*        CheckAchieveUnlock(m, "SAME_4", count_steps >= 4
                 && current == mass_values[1]
                 && current == mass_values[2]
                 && current == mass_values[3]);
+*/
+
+        if (mass_values[0] == mass_values[1]) {
+            AchieveAddCounter(m, "SAME_4", 1);
+            AchieveAddCounter(m, "SAME_8", 1);
+        } else {
+            AchieveClearCounter("SAME_4");
+            AchieveClearCounter("SAME_8");
+        }
 
         if (mass_signs[0] == mass_signs[1]) {
             AchieveAddCounter(m, "SIGNS_SAME_10", 1);
@@ -125,6 +137,7 @@ public class AchieveController {
         dateStartLevel = Calendar.getInstance().getTime();
         AchieveClearCounter("STEPS_LEVEL_50");
         AchieveClearCounter("STEPS_LEVEL_99");
+        AchieveClearCounter("STEPS_LEVEL_200");
         AchieveClearCounter("SIGNS_SAME_10");
         AchieveClearCounter("SIGNS_SAME_15");
         AchieveClearCounter("SIGNS_SAME_30");

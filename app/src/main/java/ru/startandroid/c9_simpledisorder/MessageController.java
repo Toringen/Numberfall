@@ -9,6 +9,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,6 +19,7 @@ import java.util.List;
 
 public class MessageController {
     List<String> list = new ArrayList<String>();
+    static Date dateAppeared;
 
     public void AddMessage(String s) {
         list.add(s);
@@ -42,7 +45,12 @@ public class MessageController {
                                 boolean is_force) {
         if (isEmpty())
             layoutPlayerMessage.setVisibility(View.INVISIBLE);
-        else if (layoutPlayerMessage.getVisibility() == View.INVISIBLE || is_force) {
+        else if (Calendar.getInstance().getTime().getTime() - dateAppeared.getTime() >= 2000
+                && (layoutPlayerMessage.getVisibility() == View.INVISIBLE || is_force)) {
+
+            if (layoutPlayerMessage.getVisibility() == View.INVISIBLE)
+                dateAppeared = Calendar.getInstance().getTime();
+
             String s = GetMessage();
             tvPlayerMessage.setText(s.substring(2));
             layoutPlayerMessage.setVisibility(View.VISIBLE);

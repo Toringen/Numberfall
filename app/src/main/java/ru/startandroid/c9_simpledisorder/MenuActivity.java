@@ -40,7 +40,7 @@ public class MenuActivity extends AppCompatActivity {
     boolean is_hardmode_level, is_achieve;
     int id_mode, id_page, id_button_choosen, state_godmode, level_id, achieve_id, max_level;
     String[] list_difficulties = new String[] { "EASY", "NORMAL", "HARD", "LUNATIC",
-            "KNIGHT", "SORCERER", "PRINCE", "REVOLUTIONARY", "THE DOUBLE", "KING" };
+            "KNIGHT", "PRINCE", "SORCERER", "THE DOUBLE", "REVOLUTIONARY", "KING" };
 
     Random rand = new Random();
     int BUTTON_HEIGHT;
@@ -150,30 +150,19 @@ public class MenuActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             try {
                                 Button btn = (Button) v;
+								int old_id_button_choosen = id_button_choosen;
                                 id_button_choosen = (int)btn.getTag();
+                                if (id_button_choosen != -1) 
+									UpdateButtonColor(old_id_button_choosen);
+                                UpdateButtonColor(id_button_choosen);
 
                                 if (is_achieve)
                                 {
-                                    if (achieve_id != -1)
-                                        UpdateButtonColor(achieve_id);
                                     achieve_id = id_button_choosen;
-                                    UpdateButtonColor(achieve_id);
                                     UpdateAchieveInfo(achieve_id);
                                 }
                                 else
                                 {
-                                    int color_base = is_hardmode_level ? Color.WHITE : Color.BLACK;
-                                    int color_inv  = is_hardmode_level ? Color.BLACK : Color.WHITE;
-                                    if (level_id != -1) {
-                                        Button btn_old = list_buttons[level_id % list_buttons.length];
-                                        btn_old.setTextColor(color_base);
-                                        //btn_old.setBackgroundColor(color_inv);
-                                        UpdateButtonColor(level_id % list_buttons.length);
-                                    }
-                                    //btn.setBackgroundColor(color_base);
-                                    btn.setTextColor(color_inv);
-                                    UpdateButtonColor(id_button_choosen);
-
                                     level_id = list_buttons.length * id_page + id_button_choosen;
                                     if (    state_godmode == 0 && level_id + 1 == 17 ||
                                             state_godmode == 1 && level_id + 1 ==  7 ||
@@ -307,7 +296,6 @@ public class MenuActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     UpdateButtonColor(lid);
-                    btn.setTextColor(is_black ? Color.WHITE : Color.BLACK);
                 }
             }, 42 + rand.nextInt(100));
         }
@@ -399,7 +387,7 @@ public class MenuActivity extends AppCompatActivity {
                     String s = code.substring(1);
                     if (code == "Overflow")
                         is_overflow_level = !is_overflow_level;
-                    else if (code != "Binary" && !code.startsWith("StackSet"))
+                    else if (code != "Binary" && !code.startsWith("StackSet") && !code.startsWith("Sorcerer") && !code.startsWith("Repeat"))
                         switch (code.charAt(0)) {
                             case 'S': case 'D': case 'B':case 'A':case 'А': break;
                             case 'C': // Start number
@@ -507,12 +495,15 @@ public class MenuActivity extends AppCompatActivity {
         }
         else
         {
-            if (id_button == id_button_choosen)
+            if (id_button == id_button_choosen) {
+                btn.setTextColor(is_hardmode_level ? Color.BLACK : Color.WHITE);
                 btn.setBackgroundColor(is_hardmode_level ? Color.WHITE : Color.BLACK);
-            else
+            } else {
+                btn.setTextColor(is_hardmode_level ? Color.WHITE : Color.BLACK);
                 btn.setBackgroundColor(getResources().getColor(StarController.GetMenuButtonColor(id_mode,
                         id_button + list_buttons.length * id_page,
                         is_hardmode_level)));
+            }
         }
     }
 

@@ -43,6 +43,16 @@ public class StarController {
         int levels = LevelController.GetLevelpack(0).length;
         sPrefLevels = sPrefLevels_;
         list_star_count = new int[modes][levels];
+/*
+        SharedPreferences.Editor ed = sPrefLevels.edit();
+        for (int k = 0; k < modes; k++)
+            for (int i = 35; i < 100; i++)
+            {
+                ed.putBoolean("M" + k + "H" + i, false);
+                ed.putBoolean("M" + k + "L" + i, false);
+            }
+        ed.commit();
+*/
         for (int k = 0; k < modes; k++)
             for (int i = 0; i < levels; i++)
             {
