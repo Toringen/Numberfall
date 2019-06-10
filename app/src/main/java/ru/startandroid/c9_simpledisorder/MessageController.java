@@ -21,6 +21,10 @@ public class MessageController {
     List<String> list = new ArrayList<String>();
     static Date dateAppeared;
 
+    public MessageController() {
+        dateAppeared = Calendar.getInstance().getTime();
+    }
+
     public void AddMessage(String s) {
         list.add(s);
     }
@@ -42,11 +46,12 @@ public class MessageController {
                                 LinearLayout llPlayerMessage,
                                 ImageView image,
                                 TextView tvPlayerMessage,
-                                boolean is_force) {
+                                boolean check_invisible,
+                                boolean check_time) {
         if (isEmpty())
             layoutPlayerMessage.setVisibility(View.INVISIBLE);
-        else if (Calendar.getInstance().getTime().getTime() - dateAppeared.getTime() >= 2000
-                && (layoutPlayerMessage.getVisibility() == View.INVISIBLE || is_force)) {
+        else if ((!check_invisible || layoutPlayerMessage.getVisibility() == View.INVISIBLE) &&
+                 (!check_time || Calendar.getInstance().getTime().getTime() - dateAppeared.getTime() >= 4500)) {
 
             if (layoutPlayerMessage.getVisibility() == View.INVISIBLE)
                 dateAppeared = Calendar.getInstance().getTime();

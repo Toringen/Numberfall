@@ -36,14 +36,21 @@ import static java.lang.Math.min;
 public class StarController {
     private static SharedPreferences sPrefLevels;
     private static int[][] list_star_count;
+    private static int[] count_completed_diff_levels;
     public static int count_stars, count_levels;
+    public static boolean is_godmode;
 
     public static void Initialize(SharedPreferences sPrefLevels_) {
         int modes  = 1;
         int levels = LevelController.GetLevelpack(0).length;
         sPrefLevels = sPrefLevels_;
         list_star_count = new int[modes][levels];
-/*
+        count_completed_diff_levels = new int[20];  // С запасом
+        count_stars = 0;
+        count_levels = 0;
+
+        /*
+
         SharedPreferences.Editor ed = sPrefLevels.edit();
         for (int k = 0; k < modes; k++)
             for (int i = 35; i < 100; i++)
@@ -53,6 +60,8 @@ public class StarController {
             }
         ed.commit();
 */
+
+        is_godmode = sPrefLevels.getBoolean("GODMODE", false);
         for (int k = 0; k < modes; k++)
             for (int i = 0; i < levels; i++)
             {
@@ -60,16 +69,24 @@ public class StarController {
                          list_star_count[k][i] = 2;
                          count_stars += 2;
                          count_levels++;
+                         count_completed_diff_levels[i / 7]++;
                      }
                 else if (sPrefLevels.getBoolean("M" + k + "L" + i, false)) {
                          list_star_count[k][i] = 1;
                          count_stars++;
                          count_levels++;
+                         count_completed_diff_levels[i / 7]++;
                      }
             }
             MessageController m = new MessageController();
             AchieveController.AddStar(m, count_stars);
             AchieveController.AddLevel(m, count_levels);
+    }
+
+    public static void SetGodmode() {
+        SharedPreferences.Editor ed = sPrefLevels.edit();
+        ed.putBoolean("GODMODE", true);
+        ed.commit();
     }
 
     public static int GetCountStars(int mode, int level_id) {
@@ -90,10 +107,11 @@ public class StarController {
             ed.putBoolean("M" + id_mode + "L" + level_id, true);
             ed.commit();
 
-            rez = "L" + level_id + "_S" + count_stars;
+            rez = "L" + count_levels + "_S" + count_stars;
             SetCountStars(id_mode, level_id, 1);
             count_stars++;
             count_levels++;
+            count_completed_diff_levels[level_id / 7]++;
         }
         if (sc < 2 && is_hardmode_level) {
             SharedPreferences.Editor ed = sPrefLevels.edit();
@@ -124,15 +142,30 @@ public class StarController {
     }
 
     public static int GetMaxLevel() {
+        return count_stars < 40 ?
+                7 * ( 1 + min(count_stars / 5, 4)) :
+                35 + 7 * (1 + (count_stars - 40) / 10);
+        /*
         return count_stars < 50 ?
                 7 * ( 1 + min(count_stars / 5, 4)) :
                 42 + 7 * (-4 + count_stars / 10);
+                */
     }
 
     public static int GetCountNeededStars(int id_level) {
+        return id_level < 35 ?
+                5 * ( id_level       / 7) - count_stars :
+                40 + 10 * ((id_level - 35) / 7) - count_stars;
+        /*
         return id_level < 42 ?
                       5 * ( id_level       / 7) - count_stars :
                 50 + 10 * ((id_level - 42) / 7) - count_stars;
+                */
     }
+
+    public static int GetCountCompletedLevelsOnDifficulty(int id_level) {
+        return count_completed_diff_levels[id_level / 7];
+    }
+
     //endregion
 }

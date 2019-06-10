@@ -38,9 +38,9 @@ public class MenuActivity extends AppCompatActivity {
     ImageView[] images_star, images_sign;
     boolean[] list_achieve_unlocked;
     boolean is_hardmode_level, is_achieve;
-    int id_mode, id_page, id_button_choosen, state_godmode, level_id, achieve_id, max_level;
+    int id_mode, id_page, id_button_choosen, state_godmode, max_level;
     String[] list_difficulties = new String[] { "EASY", "NORMAL", "HARD", "LUNATIC",
-            "KNIGHT", "PRINCE", "SORCERER", "THE DOUBLE", "REVOLUTIONARY", "KING" };
+            "EXTRA", "PRINCE", "SORCERER", "THE DOUBLE", "REVOLUTIONARY", "KING" };
 
     Random rand = new Random();
     int BUTTON_HEIGHT;
@@ -79,9 +79,7 @@ public class MenuActivity extends AppCompatActivity {
             imagePanel = findViewById(R.id.menuImagePanel);
             imageAchieveStarLeft = findViewById(R.id.menuAchieveImageStarLeft);
             imageAchieveStarRight = findViewById(R.id.menuAchieveImageStarRight);
-            list_buttons = new Button[42];
             id_button_choosen = -1;
-            level_id = -1;
             id_mode = 0;
             id_page = 0;
             state_godmode = 0;
@@ -103,6 +101,7 @@ public class MenuActivity extends AppCompatActivity {
             btnStart.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+					int level_id = list_buttons.length * id_page + id_button_choosen;
                     startActivity(new Intent(MenuActivity.this, MainActivity.class)
                             .putExtra("level_id", level_id).putExtra("mode", id_mode).putExtra("hardmode", is_hardmode_level));
                 }
@@ -138,7 +137,8 @@ public class MenuActivity extends AppCompatActivity {
 
             // Создание кнопок
             int k = 0;
-            for (int i = 0; i < 6; i++) {
+            list_buttons = new Button[35];
+            for (int i = 0; i < 5; i++) {
                 LinearLayout layout = GetLayoutParamsRow();
                 for (int j = 0; j < 7; j++) {
                     Button btn = new Button(this);
@@ -152,18 +152,17 @@ public class MenuActivity extends AppCompatActivity {
                                 Button btn = (Button) v;
 								int old_id_button_choosen = id_button_choosen;
                                 id_button_choosen = (int)btn.getTag();
-                                if (id_button_choosen != -1) 
+                                if (old_id_button_choosen != -1)
 									UpdateButtonColor(old_id_button_choosen);
                                 UpdateButtonColor(id_button_choosen);
 
                                 if (is_achieve)
                                 {
-                                    achieve_id = id_button_choosen;
-                                    UpdateAchieveInfo(achieve_id);
+                                    UpdateAchieveInfo(id_button_choosen);
                                 }
                                 else
                                 {
-                                    level_id = list_buttons.length * id_page + id_button_choosen;
+                                    int level_id = list_buttons.length * id_page + id_button_choosen;
                                     if (    state_godmode == 0 && level_id + 1 == 17 ||
                                             state_godmode == 1 && level_id + 1 ==  7 ||
                                             state_godmode == 2 && level_id + 1 == 10 ||
@@ -172,13 +171,16 @@ public class MenuActivity extends AppCompatActivity {
                                             state_godmode == 5 && level_id + 1 == 42) {
                                         state_godmode++;
                                         if (state_godmode == 6) {
+                                            StarController.SetGodmode();
                                             SetMessage("GODMODE IS ACTIVATED!");
+                                            /*
                                             SharedPreferences.Editor ed_prog = sPrefProgress.edit();
                                             ed_prog.putInt("COUNT_STARS", 9999);
                                             ed_prog.commit();
+                                            */
                                         }
                                     }
-                                    UpdateLevelInfo(level_id);
+                                    UpdateLevelInfo();
                                 }
                             } catch (Exception e) {
                                 SetMessage("BtnClick", e);
@@ -203,31 +205,27 @@ public class MenuActivity extends AppCompatActivity {
         StarController.Initialize(sPrefLevels);
         max_level = StarController.GetMaxLevel();
         if (StarController.count_stars < 10) {
-            btnHardmode.setVisibility(View.INVISIBLE);
             imagePanel.setImageResource(R.drawable.menu_panel);
             images_star[1].setVisibility(View.INVISIBLE);
         }
         if (!is_achieve) SetPage(id_page, false);
-
-        //for (int i = 0; i < list_buttons.length; i++)
-        //    list_buttons[i].setText(i < max_level ? String.valueOf(i + 1) : "X");
     }
 
     void SetPage(int value, boolean is_animate) {
         id_page = value;
-        btnPageLeft .setVisibility(id_page != 0 ? View.VISIBLE : View.INVISIBLE);
-        btnPageRight.setVisibility(id_page != 1 ? View.VISIBLE : View.INVISIBLE);
-        level_id = list_buttons.length * id_page + level_id % list_buttons.length;
-        UpdateLevelInfo(level_id);
+        UpdateLevelInfo();
+        UpdateTitleAndStuffs();
 
-		if (is_animate) 
+        if (is_animate)
 			SetPage_Thread(value, 0);
 		else {
 			int count_levels = LevelController.GetLevelpack(id_mode).length;
 			for (int i = 0; i < list_buttons.length; i++) {
 				int id_level = i + id_page * list_buttons.length;
 				list_buttons[i].setVisibility(id_level < count_levels ? View.VISIBLE : View.INVISIBLE);
-				list_buttons[i].setText(id_level < max_level ? String.valueOf(id_level + 1) : "X");
+				list_buttons[i].setText(is_hardmode_level && StarController.GetCountCompletedLevelsOnDifficulty(id_level) < 4 
+				                     || id_level >= max_level 
+                     				 ? "X" : String.valueOf(id_level + 1));
                 UpdateButtonColor(i);
 			}	
 		}
@@ -239,7 +237,9 @@ public class MenuActivity extends AppCompatActivity {
             for (int i = index - 1; i < list_buttons.length; i += 6) {
                 int id_level = i + value * list_buttons.length;
                 list_buttons[i].setVisibility(id_level < count_levels ? View.VISIBLE : View.INVISIBLE);
-                list_buttons[i].setText(id_level < max_level ? String.valueOf(id_level + 1) : "X");
+                list_buttons[i].setText(is_hardmode_level && StarController.GetCountCompletedLevelsOnDifficulty(id_level) < 4
+                        || id_level >= max_level
+                        ? "X" : String.valueOf(id_level + 1));
                 UpdateButtonColor(i);
             }
         }
@@ -272,10 +272,6 @@ public class MenuActivity extends AppCompatActivity {
         btnPageLeft.setTextColor(clr);
         btnPageRight.setTextColor(clr);
 
-        // Hardmode Icon
-        btnHardmode.setImageResource(is_hardmode_level ?
-                R.drawable.menu_hardmode_inv :
-                R.drawable.menu_hardmode);
         //Drawable btnHardmodeDrawable = btnHardmode.getDrawable();
         //int sign = is_hardmode_level ? -1 : 1;
         //final float[] FILTER = {
@@ -289,17 +285,20 @@ public class MenuActivity extends AppCompatActivity {
         // Buttons
         for (int i = 0; i < list_buttons.length; i++) {
             final Button btn = list_buttons[i];
-            final int lid = i;
-            final boolean is_black = is_hardmode_level ^ (i == level_id % 42);
+            final int level_id = i + id_page * list_buttons.length;
+            final boolean is_black = is_hardmode_level ^ (i == id_button_choosen);
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    UpdateButtonColor(lid);
+                    UpdateButtonColor(level_id % list_buttons.length);
+                    btn.setText(is_hardmode_level && StarController.GetCountCompletedLevelsOnDifficulty(level_id) < 4
+                            || level_id >= max_level
+                            ? "X" : String.valueOf(level_id + 1));
                 }
             }, 42 + rand.nextInt(100));
         }
-        UpdateLevelInfo(level_id);
+        UpdateLevelInfo();
     }
 
     void SetAchieve(boolean value) {
@@ -308,7 +307,6 @@ public class MenuActivity extends AppCompatActivity {
             gridAchieveInfo.setVisibility(is_achieve ? View.VISIBLE : View.INVISIBLE);
             gridLevelInfo.setVisibility(is_achieve ? View.INVISIBLE : View.VISIBLE);
             btnStart.setVisibility(is_achieve ? View.INVISIBLE : View.VISIBLE);
-            btnHardmode.setVisibility(is_achieve ? View.INVISIBLE : View.VISIBLE);
             UpdateTitleAndStuffs();
         } catch (Exception e) {
             SetMessage("SetAchieve01", e);
@@ -318,7 +316,6 @@ public class MenuActivity extends AppCompatActivity {
             if (is_achieve)
             {
                 list_achieve_unlocked = AchieveController.GetListUnlocked();
-                imagePanel.setVisibility(View.INVISIBLE);
 
                 int count_achieves = list_achieve_unlocked.length;
                 for (int i = 0; i < list_buttons.length; i++) {
@@ -332,6 +329,11 @@ public class MenuActivity extends AppCompatActivity {
                         b.setVisibility(View.INVISIBLE);
                     }
                 }
+                if (id_button_choosen < 0 || id_button_choosen > 29) {
+                    id_button_choosen = 0;
+                    UpdateButtonColor(id_button_choosen);
+                }
+                UpdateAchieveInfo(id_button_choosen);
             } else {
                 SetPage(id_page, true);
 				//if (!is_hardmode_level)
@@ -343,24 +345,22 @@ public class MenuActivity extends AppCompatActivity {
         }
     }
 
-    void UpdateLevelInfo(int id_level) {
+    void UpdateLevelInfo() {
         int count_levels = LevelController.GetLevelpack(id_mode).length;
-        if (id_level < 0) return;
-        if (id_level >= count_levels)
-        {
+		int level_id = list_buttons.length * id_page + id_button_choosen;
+        if (level_id < 0) return;
+
+        String message_lock = "";
+        if (level_id >= count_levels)
+            message_lock = "Play!";
+        else if (level_id >= max_level)
+            message_lock = StarController.GetCountNeededStars(level_id) + " stars needed";
+        else if (is_hardmode_level && StarController.GetCountCompletedLevelsOnDifficulty(level_id) < 4)
+            message_lock = "Complete 4 levels in a row";
+        if (message_lock != "" && !StarController.is_godmode) {
             btnStart.setEnabled(false);
-            btnStart.setText("Play!");
+            btnStart.setText(message_lock);
             gridLevelInfo.setVisibility(View.INVISIBLE);
-            imagePanel.setVisibility(View.VISIBLE);
-            return;
-        }
-        if (id_level >= max_level)
-        {
-            int stars_need = StarController.GetCountNeededStars(level_id);
-            btnStart.setEnabled(false);
-            btnStart.setText(stars_need + " stars needed");
-            gridLevelInfo.setVisibility(View.INVISIBLE);
-            imagePanel.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -420,8 +420,13 @@ public class MenuActivity extends AppCompatActivity {
             }
 
             String result = "";
-            for (int i = 0; i < result_mass.length; i++)
-                result += " -> " + result_mass[i];
+            if (result_mass.length > 8) {
+                for (int i = 0; i < 3; i++)
+                    result += " -> " + result_mass[i];
+                result += " -> ... -> " + result_mass[result_mass.length - 1];
+            } else
+                for (int i = 0; i < result_mass.length; i++)
+                    result += " -> " + result_mass[i];
 
             tvLevelDifficulty.setText("Difficulty: " + list_difficulties[level_id / 7]);
             tvLevelCurrent.setText("Start: " + value_current);
@@ -443,13 +448,8 @@ public class MenuActivity extends AppCompatActivity {
 
     void UpdateAchieveInfo(int id_achieve) {
         if (id_achieve < 0) return;
-        try {
-            imagePanel.setVisibility(View.INVISIBLE);
-            btnStart.setVisibility(View.INVISIBLE);
-            gridLevelInfo.setVisibility(View.INVISIBLE);
-        } catch (Exception e) {
-            SetMessage("UpdateAchieveInfo01", e);
-        }
+        btnStart.setVisibility(View.INVISIBLE);
+        UpdateTitleAndStuffs();
 
         try {
             Achieve a = AchieveController.GetAchieveOnID(id_achieve);
@@ -476,9 +476,18 @@ public class MenuActivity extends AppCompatActivity {
         gridMain.setBackgroundColor(is_achieve || is_hardmode_level ?
                 getResources().getColor(R.color.menu_backblack) :
                 getResources().getColor(R.color.menu_backwhite));
-        btnPageLeft.setVisibility(is_achieve ? View.INVISIBLE : View.VISIBLE);
-        btnPageRight.setVisibility(is_achieve ? View.INVISIBLE : View.VISIBLE);
+        btnPageLeft.setVisibility(id_page == 0 || is_achieve ? View.INVISIBLE : View.VISIBLE);
+        btnPageRight.setVisibility(id_page == 1 || is_achieve ? View.INVISIBLE : View.VISIBLE);
+        btnHardmode.setVisibility(StarController.count_stars < 10 || is_achieve ? View.INVISIBLE : View.VISIBLE);
+        imagePanel.setVisibility(gridLevelInfo.getVisibility() == View.VISIBLE || is_achieve || is_hardmode_level ? View.INVISIBLE : View.VISIBLE);
 
+        // Hardmode Icon
+        btnHardmode.setImageResource(is_hardmode_level ?
+                R.drawable.menu_hardmode_inv :
+                R.drawable.menu_hardmode);
+        btnAchieve.setImageResource(is_achieve || is_hardmode_level ?
+                R.drawable.menu_achieve_inv :
+                R.drawable.menu_achieve);
     }
 
     void UpdateButtonColor(int id_button) {

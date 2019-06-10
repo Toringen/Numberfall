@@ -55,6 +55,10 @@ public class Achieve {
         return counter;
     }
 
+    public int GetCounterMax() {
+        return counter_max;
+    }
+
     public boolean isUnlocked() {
         return id > 0 && is_unlocked;
     }

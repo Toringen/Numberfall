@@ -157,106 +157,6 @@
             android:orientation="vertical"></LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/linearLayoutExit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <Button
-            android:id="@+id/buttonClear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Restart" />
-
-        <Button
-            android:id="@+id/buttonExit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Exit" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayoutOperations"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
-        android:alpha="0.7"
-        android:orientation="horizontal"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="8dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="12dp"
-            android:layout_weight="1"
-            android:text="Operations:"
-            android:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/imageViewSign1"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginLeft="3dp"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/sa_plus" />
-
-        <ImageView
-            android:id="@+id/imageViewSign2"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginLeft="3dp"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/sa_plus" />
-
-        <ImageView
-            android:id="@+id/imageViewSign3"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginLeft="3dp"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/sa_plus" />
-
-        <ImageView
-            android:id="@+id/imageViewSign4"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginLeft="3dp"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/sa_plus" />
-
-        <ImageView
-            android:id="@+id/imageViewSign5"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginLeft="3dp"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/sa_plus" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/textViewError"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:layout_marginStart="8dp"
-        android:layout_weight="1"
-        android:foregroundGravity="bottom"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayoutExit"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <android.support.constraint.ConstraintLayout
         android:id="@+id/layoutPlayerMessage"
         android:layout_width="match_parent"
@@ -307,5 +207,119 @@
         </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/textViewError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:foregroundGravity="bottom"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayoutExit"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/textViewCountSteps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:alpha="0.7" />
+
+        <LinearLayout
+            android:id="@+id/linearLayoutOperations"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.7"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:layout_editor_absoluteX="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="4dp"
+                android:layout_weight="1"
+                android:text="Operations:"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/imageViewSign1"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/sa_plus" />
+
+            <ImageView
+                android:id="@+id/imageViewSign2"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/sa_plus" />
+
+            <ImageView
+                android:id="@+id/imageViewSign3"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/sa_plus" />
+
+            <ImageView
+                android:id="@+id/imageViewSign4"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/sa_plus" />
+
+            <ImageView
+                android:id="@+id/imageViewSign5"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/sa_plus" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutExit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <Button
+                android:id="@+id/buttonClear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Restart" />
+
+            <Button
+                android:id="@+id/buttonExit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Exit" />
+        </LinearLayout>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
